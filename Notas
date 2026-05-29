@@ -1,1 +1,10 @@
-Solucion: HistoricoSolicitudesAprobadas
+Solucion: HistoricoSolicitudesAprobadas [Pantalla usada para debbugear] > [Pantalla final]
+[Los flujos de automate no funcionan porque no tienen llegada a SQL] 
+
+
+                                                                                                                                       [Tiene un Logic App y un API dentro de Azure]
+[Ingresa a la solución Sistema Tramites Home Alumnos > [Sistema de Trámites] - Alumnos] > [Código de usuario usado para probar: U20211A148] > [Elegir la opción de Pregrado/EPE] >
+[En los parametros de la URL envia el ROL y el USUARIO] >
+
+
+Revisar la aplicación: [Sistema de tramites] - Alumnos
