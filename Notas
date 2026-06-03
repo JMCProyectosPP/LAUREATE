@@ -3,3 +3,12 @@ Solucion: HistoricoSolicitudesAprobadas [Pantalla usada para debbugear] > [Panta
                                                                                                                                        [Tiene un Logic App y un API dentro de Azure]
 [Ingresa a la solución Sistema Tramites Home Alumnos > [Sistema de Trámites] - Alumnos] > [Código de usuario usado para probar: U20211A148] > [Elegir la opción de Pregrado/EPE] >
 [En los parametros de la URL envia el ROL y el USUARIO] >
+
+"codigoAlumno": "@{triggerBody()?['idBanner']}"
+
+2836a495-6cb6-f011-bbd2-6045bd38c2d8
+
+Estaban desactivados, los volvi a activar
+[Corrección de Evaluaciones] - Proceso Actualizar Nota UCLASS
+[Corrección de Evaluaciones] - [FP] - Individual
+[Corrección de Evaluaciones] - [FR] - Reintentos
