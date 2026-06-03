@@ -1,0 +1,474 @@
+//Variables generales
+Set(var_canSelectExtra;false);;
+Set(
+    varColorAzul;
+    RGBA(37;12;82;1)
+);;
+Set(
+    varColorFondo;
+    RGBA(242;242;242;1)
+);;
+Set(
+    varColorMorado;
+    RGBA(53;21;140;1)
+);;
+Set(
+    varColorRojo;
+    RGBA(229;10;23;1)
+);;
+//ColoresFigma
+Set(
+    varColorRojoFigma;
+    RGBA(
+        255;0;0;1)
+);;
+Set(
+    varColorMoradoFigma;
+    RGBA(37;12;82;1)
+);;
+Set(
+    varColorCafeFigma;
+    RGBA(37;12;82;1)
+);;
+Set(
+    varColorNegroFigma;
+    RGBA(57;48;48;1)
+);;
+Set(
+    varColorNegroFigma2;
+    RGBA(25;25;25;1)
+);;
+Set(
+    varColorVerdeFigma;
+    RGBA(67;178;69;1)
+);;
+Set(
+    varColorAzulFigma;
+    RGBA(31;129;217;1)
+);;
+Set(
+    varColorAzulFigma2;
+    RGBA(17;94;163;1)
+);;
+
+Set(varCodigoTramite; "TRA005");;
+
+
+
+Set(
+    getConfigText;
+    LookUp(
+        Var_upc_TramiteConfiguracionInicial;
+        codigoTramite.Value = varCodigoTramite
+    )
+);;
+
+ClearCollect(
+    tbl_EstadoInscripcionCodigos;
+    ForAll(
+        Table(ParseJSON(getConfigText.jsonTablaConfiguracion).EstadoInscripcionCodigos) As EstadoInscripcionCodigos;
+        {Value: Text(EstadoInscripcionCodigos.Value)}
+    )
+);;
+ClearCollect(
+    tbl_TipoNota;
+    ForAll(
+        Table(ParseJSON(getConfigText.jsonTablaConfiguracion).tipoNota) As tipoNota;
+        {Value: Text(tipoNota.Value)}
+    )
+);;
+
+// Tabla de Configuraciones
+Set(TablaConfiguracion;
+    {
+        //Tramite
+        codigoTramite:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codigoTramite);
+        codigoSolicitud:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codigoSolicitud);
+        //Para enlaces
+        GrupoHomeAlumno:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).GrupoHomeAlumno);
+        GrupoHomeAdministrativos:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).GrupoHomeAdministrativos);
+        verBandeja:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).verBandeja);
+        verCounter:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).verCounter);
+        verTramites:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).verTramites);
+        verEvaluador:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).verEvaluador);
+        //Modulos
+        valorModuloA:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).valorModuloA);
+        valorModuloB:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).valorModuloB);
+        valorModuloRE:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).valorModuloRE);
+        //En importante Estado Inscripcion
+        EstadoInscripcionCodigos:tbl_EstadoInscripcionCodigos;
+        //roles
+        RolAdministrativo:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).RolAdministrativo);
+        RolAlumno:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).RolAlumno);
+        valorNivelUG:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).valorNivelUG);
+        //Modalidades
+        valorModalidadPregrado:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).valorModalidadPregrado);
+        valorModalidadEPE:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).valorModalidadEPE);
+        //Avisos
+        valorAvisoOtros:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).valorAvisoOtros);
+        valorAvisoImportante:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).valorAvisoImportante);
+        codigoFiltroEstadoAviso:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codigoFiltroEstadoAviso);
+        //Variables tipos de sanciones
+        TipoSancion01:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).TipoSancion01);
+        TipoSancion02:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).TipoSancion02);
+        TipoSancion03:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).TipoSancion03);
+        TipoSancion04:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).TipoSancion04);
+        filtroEstadoActivoSancion:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).filtroEstadoActivoSancion);
+        //Para obtener la primera actividad
+        numOrdenPrimeraActividad:Value(ParseJSON(getConfigText.jsonTablaConfiguracion).numOrdenPrimeraActividad);
+        codigoEstadoActividad:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codigoEstadoActividad);
+        //EnVigencias
+        filtroVigenciaModular:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).filtroVigenciaModular);
+        filtroEstadoVigencia:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).filtroEstadoVigencia);
+        //En validaciones
+        filtroEstadoValidacion:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).filtroEstadoValidacion);
+        //En reglas
+        filtroEstadoRegla:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).filtroEstadoRegla);
+        //En los modales
+        codigoIconoAlerta:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codigoIconoAlerta);
+        codigoIconoSuccess:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codigoIconoSuccess);
+        codigoIconoConfirm:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codigoIconoConfirm);
+        //En el registro
+        filtroDocentePrincipal:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).filtroDocentePrincipal);
+        //En confirmar
+        codigoTipoDuracion2:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codigoTipoDuracion2);
+        estadoActTerminado:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).estadoActTerminado);
+        estadoSolEnProceso:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).estadoSolEnProceso);
+        //Tipos de reclamo
+        codTipoReclamo1:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codTipoReclamo1);//error de suma
+        codTipoReclamo2:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codTipoReclamo2);//error de digitacion
+        codTipoReclamo3:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codTipoReclamo3);//no se considero el total de preguntas
+        codTipoReclamo4:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codTipoReclamo4);//pregunta no corregida
+        codTipoReclamo5:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codTipoReclamo5);//error en la clave de respuesta
+        codTipoReclamo6:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codTipoReclamo6);//problemas con el blackboard
+        codTipoReclamo7:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codTipoReclamo7);//No se considero mi nombre en la evaluación
+        codTipoReclamo8:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).codTipoReclamo8);//No se considero mi nombre en la evaluación
+        tipoNota:tbl_TipoNota;
+        //Valores generales
+        valorEstadoServicioPendiente:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).valorEstadoServicioPendiente);
+        valorNotaMin:Value(ParseJSON(getConfigText.jsonTablaConfiguracion).valorNotaMin);
+        valorNotaMax:Value(ParseJSON(getConfigText.jsonTablaConfiguracion).valorNotaMax);
+        /*valorSi:"Si";
+        valorNo:"No";
+        valorSeleccione:"SELECCIONE";
+        valorActivo:"Activo";*/
+        //Formatos fechas para logs
+        FormatoFecha:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).FormatoFecha);
+        FormatoFechaHora:Text(ParseJSON(getConfigText.jsonTablaConfiguracion).FormatoFechaHora);
+        tipoAlerta:ForAll(
+            Table(ParseJSON(getConfigText.jsonTablaConfiguracion).tipoAlerta) As f;
+            {Value: Text(f.Value)}
+        )
+    }
+);;
+
+// Glosas
+Set(TablaGlosas;
+    {
+        //Glosas
+        codigoGlosaAceptaTerminos:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaAceptaTerminos);
+        codigoGlosaFaltaInfoWS:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaFaltaInfoWS);
+        codigoGlosaCorrectoRegistro:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaCorrectoRegistro);
+        codigoGlosaErrorRegistro:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaErrorRegistro);
+        codigoGlosaConfirmarRegistro:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaConfirmarRegistro);
+        //Glosas en validacion de tipos de reclamos
+        codigoGlosaValidacionTipoReclamo1:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo1);//"Seleccione un tipo de reclamo."
+        codigoGlosaValidacionTipoReclamo2:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo2);//"Ingrese el valor de error de suma."
+        codigoGlosaValidacionTipoReclamo3:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo3);//"Nota Correcta no se permite caracteres especiales."
+        codigoGlosaValidacionTipoReclamo4:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo4);//El valor de la Nota debe ser mayor que 0 y menor o igual a 20.
+        codigoGlosaValidacionTipoReclamo5:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo5);//error en la clave de respuesta
+        codigoGlosaValidacionTipoReclamo6:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo6);//"Agregue al menos una pregunta."
+        codigoGlosaValidacionTipoReclamo7:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo7);//"Agregue al menos un registro."
+        codigoGlosaValidacionTipoReclamo8:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo8);//"No se permite caracteres especiales."
+        codigoGlosaValidacionTipoReclamo9:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo9);//"Seleccione los campos."
+        codigoGlosaValidacionTipoReclamo10:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo10);//"Ya existe los registros seleccionados."
+        codigoGlosaValidacionTipoReclamo11:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo11);//"La pregunta no puede estar en blanco."
+        codigoGlosaValidacionTipoReclamo12:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo12);//"La pregunta ya existe en la lista."
+        codigoGlosaValidacionTipoReclamo13:Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaValidacionTipoReclamo13);//"Ingrese los campos nota correcta y grupo al que pertenece."
+        codigoGlosaTextAlertaExtraAcademicos: Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaTextAlertaExtraAcademicos); //Estimado alumno, te encuentras matriculado en más de un periodo. Elige aquí sobre qué periodo realizarás el trámite.
+        codigoGlosaErrorExtraAcademicos: Text(ParseJSON(getConfigText.jsonTablaGlosas).codigoGlosaErrorExtraAcademicos) //"Error al actualizar alumno"
+    }
+);;
+
+If(
+    IsBlank(Param("IdR"));
+    Launch(
+        LookUp(
+            Var_upc_Grupo;
+            codigoGrupo = TablaConfiguracion.GrupoHomeAlumno;
+            rutaGrupo
+        );
+        {};
+        LaunchTarget.Replace
+    )
+);;
+
+Set(varLinkHome;TablaConfiguracion.verTramites);; //"verTramites");;
+Set(varLinkBandeja;TablaConfiguracion.verBandeja);;//"verBandeja");;
+Set(varLinkEvaluador;TablaConfiguracion.verEvaluador);;//"verEvaluador");;
+Set(varLinkCounter;TablaConfiguracion.verCounter);;//"verCounter");;
+
+//Coleccion para validar ingreso de caracteres
+ClearCollect(
+    colCaracteresEspeciales;
+    ["+";"-"; "="]    
+);;
+ClearCollect(
+    colCaracteresEspecialesAux;
+    ["+";"-"; "="; "."; ","; " "]    
+);;
+
+//Refresh a la lista ícono
+Refresh(Var_upc_Icono);;
+
+//Capturamos el parametro codigo de usuario desde el url
+Set(varCodigoUsuario;Param("Id"));;
+Set(varUsuarioRol;Param("IdR"));;
+Set(varUsuarioNivel;Param("Nivel"));;
+
+If(
+    IsBlank(Text(varCodigoUsuario));
+    Set(
+        varCodigoUsuario;
+        //"U202123667"
+        //"U202317410" /FC
+        //"U20231F083" //AC
+        //"U202316543"
+        //"U202211952"
+        //"U202211952"
+        //"U20211B387"
+        //"U201417526"
+        //"U20211B333"
+        //"U201814573"
+        ""
+    )
+);;
+
+
+If(
+    IsBlank(Text(varUsuarioRol));
+    Set(
+        varUsuarioRol;
+        TablaConfiguracion.RolAlumno //"ALUMNO"
+    )
+);;
+If(
+    IsBlank(Text(varUsuarioNivel));
+    Set(
+        varUsuarioNivel;
+        TablaConfiguracion.valorNivelUG //"UG"
+    )
+);;
+
+//Definimos variables de información de alumno de la lista Upc alumno JSON alumno
+Refresh(Var_upc_Alumno);;
+Set(
+    varAlumno;
+    LookUp(
+        Var_upc_Alumno;
+        codigoUsuario = varCodigoUsuario && Nivel=varUsuarioNivel
+    )
+);;
+
+Set(var_haveExtra; If(varAlumno.flagMatriculaConcatenado = "Si";true;false));;
+
+ForAll(
+    Table(ParseJSON(varAlumno.jsonDetalleMatricula)) As detalleMatricula;
+    Collect(
+        colDetalleMatriculaExtra;
+        {
+            nrc: Text(detalleMatricula.Value.nrc);
+            MateriaCodigo: Text(detalleMatricula.Value.MateriaCodigo);
+            MateriaDescripcion: Text(detalleMatricula.Value.MateriaDescripcion);
+            numeroCurso: Text(detalleMatricula.Value.numeroCurso);
+            estadoInscripcionCodigo: Text(detalleMatricula.Value.estadoInscripcionCodigo);
+            partePeriodocodigo: Text(detalleMatricula.Value.partePeriodocodigo);
+            partePeriodoDescripcion: Text(detalleMatricula.Value.partePeriodoDescripcion);
+            calificacionnota: Text(detalleMatricula.Value.calificacionnota);
+            campuscodigo: Text(detalleMatricula.Value.campuscodigo);
+            campusdescripcion: Text(detalleMatricula.Value.campusdescripcion);
+            codigoPeriodo: Text(detalleMatricula.Value.codigoPeriodo)
+        }
+    )
+);;
+
+ForAll(
+    Table(ParseJSON(varAlumno.jsonConcatenadoRespaldo)) As detalleMatriculaConcatenado;
+    Collect(
+        colDetalleMatriculaConcatenado;
+        {
+            programa: Text(detalleMatriculaConcatenado.Value.programa);
+            codigoPeriodo: Text(detalleMatriculaConcatenado.Value.periodo);
+            cursos:detalleMatriculaConcatenado.Value.Cursos
+        }
+    )
+);;
+
+If(
+    var_haveExtra;
+    Set(var_DetalleMatriculaPatch;colDetalleMatriculaConcatenado);
+    Set(var_DetalleMatriculaPatch;colDetalleMatriculaExtra)
+);;
+
+ForAll(
+        Table(ParseJSON(First(Var_upc_CatalogosMotorTramites).jsonPeriodos)) As JP;
+        Collect(
+            col_PeriodosMotor;
+            {
+                Codigo: Text(JP.Value.codigo);
+                Descripcion: Text(JP.Value.descripcion);
+                FechaI: Text(JP.Value.fechaInicio);
+                FechaF: Text(JP.Value.fechaFin)
+            }
+        )
+    );;
+
+Set(parsedPeriodosExtra; ParseJSON(varAlumno.jsonMatriculaConcatenado));;
+
+ClearCollect(
+    tbl_periodosExtraacademicos;
+    ForAll(
+        parsedPeriodosExtra;
+        {   periodoExtra: ThisRecord.periodo;
+            programaExtra: ThisRecord.programa
+        }
+    )
+);;
+
+ClearCollect(
+    col_PeriodosExtraFiltrados;                
+    ForAll(
+        tbl_periodosExtraacademicos As Extra;  
+        {
+            
+            SampleFieldCodigo:                
+                LookUp(
+                    col_PeriodosMotor;
+                    Codigo = Extra.periodoExtra;
+                    Codigo
+                );
+            SampleFieldDescripcion:
+                LookUp(
+                    col_PeriodosMotor;
+                    Codigo = Extra.periodoExtra;
+                    Descripcion
+                );
+            SampleFieldPrograma:
+                Text(Extra.programaExtra)
+        }
+    )
+);;
+
+Set(var_viewMdlCfrmPeriodo;false);;
+
+Set(var_registryPeriodoExtra;Blank());;
+
+Set(var_periodoExtraSelected; Blank());;
+Set(var_programaExtraSelected; Blank());;
+
+Set(
+    varAlumnoJson;
+    ParseJSON(varAlumno.jsonAlumno)
+);;
+Set(
+    tblDetalleMatricula;
+    Table(ParseJSON(varAlumno.jsonDetalleMatricula))
+);;
+Set(
+    tblDocenteSeccion;
+    Table(ParseJSON(varAlumno.jsonDocenteSeccion))
+);;
+
+///variables del programa
+Set(
+    varNombreAlumno;
+    varAlumno.nombreAlumno
+    & " - "& varAlumno.codigoUsuario 
+);; 
+
+Set(
+    varFotoAlumno;
+    If(varUsuarioRol = TablaConfiguracion.RolAlumno;//"ALUMNO";
+        If(IsBlank(Text(First(Table(varAlumnoJson.listaAlumno)).Value.fotoAlumno));
+            User().Image;
+            Text(First(Table(varAlumnoJson.listaAlumno)).Value.fotoAlumno)
+        );
+        User().Image
+    )
+);;
+Set(
+    varCorreoElectronicoAlumno;
+    Text(First(Table(varAlumnoJson.listaAlumno)).Value.correoElectronico)
+);;
+Set(
+    varPrograma;
+    First(Table(First(Table(varAlumnoJson.listaAlumno)).Value.programas)).Value.descripcion
+);;
+
+//Obtener Configuracion de Tramite
+Refresh(Var_upc_ConfiguracionTramite);;
+Set(
+    varConfiguracionTramite;
+    LookUp(
+        Var_upc_ConfiguracionTramite;
+        codigoTramite.Value = TablaConfiguracion.codigoTramite //varCodigoTramite 
+        && codigoNivel.Value = varAlumno.Nivel
+    )
+);;
+
+//Obtener aviso de reglamento
+Refresh(Var_upc_Aviso);;
+Set(varAvisoReglamento; 
+    LookUp(Var_upc_Aviso;
+        codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite && 
+        tipo.Value = TablaConfiguracion.valorAvisoOtros//"otros" 
+        && estadoAviso.Value = TablaConfiguracion.codigoFiltroEstadoAviso//"ACTIVO"
+    )
+);;
+
+// ------------------------ VIGENCIAS MODULARES ----------------------------- //
+// OBTENER PARTE PERIODO CÓDIGO DE DETALLE MATRÍCULA
+ClearCollect(
+    col_detalleMatricula;
+    ForAll(
+        tblDetalleMatricula;
+        {
+            partePeriodocodigo:Text(Value.partePeriodocodigo)
+        }
+    )
+);;
+ClearCollect(
+    col_VigenciasModulares;
+    {
+        //MÓDULO A
+        moduloA:If(IsBlank(LookUp(col_detalleMatricula;partePeriodocodigo=TablaConfiguracion.valorModuloA).partePeriodocodigo);"No";"Si");
+        //MÓDULO B
+        moduloB:If(IsBlank(LookUp(col_detalleMatricula;partePeriodocodigo=TablaConfiguracion.valorModuloB).partePeriodocodigo);"No";"Si");
+        //MÓDULO RE
+        modulo1:If(IsBlank(LookUp(col_detalleMatricula;partePeriodocodigo=TablaConfiguracion.valorModuloRE).partePeriodocodigo);"No";"Si")
+    }
+);;
+
+//Sanciones a aplicar para cursos desde la lista de mantenimientos
+ClearCollect(
+    colTiposSancionesTramiteCurso;
+    Filter(
+        Var_upc_ConfiguracionTramiteSancion;
+        codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite 
+        && activo.Value = TablaConfiguracion.filtroEstadoActivoSancion//"Si" 
+        && (
+            codigoTipoSancion.Value = TablaConfiguracion.TipoSancion04 //varTipoSancion04 
+        )
+    )
+);;
+
+//Ruta para el enlace de la aplicación del home
+
+Set(
+    varEnlaceHome;
+    If(varUsuarioRol = TablaConfiguracion.RolAlumno;//"ALUMNO";
+        LookUp(Var_upc_Grupo; codigoGrupo=TablaConfiguracion.GrupoHomeAlumno; rutaGrupo);
+        LookUp(Var_upc_Grupo; codigoGrupo=TablaConfiguracion.GrupoHomeAdministrativos; rutaGrupo)
+    )
+);;
+Set(var_modalCargaHome;false)

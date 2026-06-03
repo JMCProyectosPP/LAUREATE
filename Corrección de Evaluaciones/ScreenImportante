@@ -1,0 +1,296 @@
+Screens:
+  ScreenImportante:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+      LoadingSpinnerColor: =RGBA(164, 38, 44, 1)
+    Children:
+      - Rectangle5:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =299
+            Width: =874
+            X: =483
+            Y: =250
+      - InfoAlumno_2:
+          Control: CanvasComponent
+          ComponentName: InfoAlumno
+          Properties:
+            Height: =425
+            Width: =332
+            X: =81
+            Y: =230
+            comCodigoAlumno: =varAlumno.codigoAlumno
+            comPeriodo: =varAlumno.Periodo
+            comPrograma: =varAlumno.CodigodePrograma &" - "& varAlumno.ProgramaDescripcion
+      - BanerSuperior_3:
+          Control: CanvasComponent
+          ComponentName: BanerSuperior
+          Properties:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =115
+            Width: =1306
+            X: =58
+            comImagenAlumno: =varFotoAlumno
+            comNombreUsuario: =If(varUsuarioRol="ALUMNO",varNombreAlumno,User().FullName)
+      - Container5:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            Fill: =varColorFondo
+            Height: =410
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            Width: =873
+            X: =450
+            Y: =235
+          Children:
+            - Gallery1:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Height: =386
+                  Items: |-
+                    =Sort(
+                        Filter(Var_upc_Aviso,
+                        codigoConfiguracionTramite.Value= varConfiguracionTramite.codigoConfiguracionTramite 
+                        && tipo.Value=TablaConfiguracion.valorAvisoImportante 
+                        && estadoAviso.Value=TablaConfiguracion.codigoFiltroEstadoAviso),
+                    Orden,SortOrder.Ascending)
+                  TemplateSize: =61
+                  Width: =848
+                  X: =12
+                  Y: =8
+                Children:
+                  - Label22:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(89, 0, 0, 1)
+                        Color: =RGBA(50, 49, 48, 1)
+                        Font: =Font.'Open Sans Condensed'
+                        FontWeight: =FontWeight.Bold
+                        OnSelect: =Select(Parent)
+                        Size: =14
+                        Text: =ThisItem.nombreAviso
+                        VerticalAlign: =VerticalAlign.Top
+                        Width: =135
+                        X: =61
+                        Y: =3
+                  - Image5:
+                      Control: Image@2.2.3
+                      Properties:
+                        BorderColor: =RGBA(89, 0, 0, 1)
+                        Height: =28
+                        Image: =ThisItem.imagenAviso
+                        OnSelect: =Select(Parent)
+                        Width: =29
+                        X: =20
+                        Y: =5
+                  - Label23:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(89, 0, 0, 1)
+                        Font: =Font.'Open Sans Condensed'
+                        Height: =If(ThisItem.codigoAviso="AVI107",200,40)
+                        OnSelect: =Select(Parent)
+                        Size: =14
+                        Text: =ThisItem.mensajeAviso
+                        VerticalAlign: =VerticalAlign.Top
+                        Visible: =false
+                        Width: =622
+                        X: =196
+                  - HtmlText3:
+                      Control: HtmlViewer@2.1.0
+                      Properties:
+                        AutoHeight: =true
+                        DisabledBorderColor: =RGBA(56, 56, 56, 1)
+                        Font: =Font.'Open Sans Condensed'
+                        Height: =41
+                        HtmlText: |-
+                          =Substitute(         
+                              Substitute(
+                                  ThisItem.mensajeAviso,
+                                  "[[numeroDias]]",
+                                  Concatenate(varConfiguracionTramite.duracion, If( varConfiguracionTramite.duracion > 1," días"," día"))
+                              ),
+                              "[[tipoDuracion]]",
+                                  Lower(varTipoDuracion)
+                          )
+                        OnSelect: =Select(Parent)
+                        Size: =14
+                        Width: =568
+                        X: =231
+      - Button1_2:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varColorRojo
+            Font: =Font.'Open Sans Condensed'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+            OnSelect: "=//Presenta modal de carga\nSet(var_modalCargaHome,true);\n//Considera deshabilitar en forma inicial el botón SIGUIENTE\nSet(\n    varModalError,\n    false\n);\nClear(colTIpoEvaluacionCorreccion);\n\n\n//Validaciones\nRefresh(Var_upc_Validacion);\nRefresh(Var_upc_ConfiguracionTramiteVigencia);\n\n//Filtrar asignaturas por estado de inscripción\nClearCollect(\n    colDetalleMatricula,\n    Filter(\n        colDetalleMatricula,\n        (\n            //estadoInscripcionCodigo = TablaConfiguracion.EstadoInscripcionCodigoRW || \n            //estadoInscripcionCodigo = TablaConfiguracion.EstadoInscripcionCodigoRE\n            estadoInscripcionCodigo in TablaConfiguracion.EstadoInscripcionCodigos\n        )\n    )\n);\n\n//Valida curso cuyo \"codigo\" de \"estadoInscripcion\" sea RW o RE - REQ009\nSet(varContMatriculaCursosHabiles,\n    CountRows(\n        colDetalleMatricula\n    )\n);\n\n//Creamos la coleccion de las Validaciones de la Pantalla \nClearCollect(colValidaciones,\n    Filter(Var_upc_Validacion,\n        estado.Value=TablaConfiguracion.filtroEstadoValidacion\n        && codigoConfiguracionTramite.Value=var_confTRam\n    )\n);\n\n//Validación de los requisitos\nClear(colCumpleValidacion);\n\nForAll(Sort(colValidaciones,orden,SortOrder.Ascending),\n    Switch(ThisRecord.codigoRequisito.Value,    \n    \"REQ003\", //Información de matrícula\n        Collect(colCumpleValidacion,{\n        Codigo:ThisRecord.codigoRequisito.Value,\n        Cumple:If(!IsBlank(varAlumno.jsonMatricula) && !IsBlank(varAlumno.jsonDetalleMatricula),\n                    \"Si\",\"No\"), \n        Glosa:ThisRecord.codigoGlosa.Value}),\n    \"REQ009\", //Validación de cursos hábiles\n        Collect(colCumpleValidacion,{\n        Codigo:ThisRecord.codigoRequisito.Value,\n        Cumple:If(varContMatriculaCursosHabiles > 0,\n                \"Si\",\"No\"),\n        Glosa:ThisRecord.codigoGlosa.Value}))\n);\n\nSet(var_ResultadoValidacion,Filter(colCumpleValidacion,Cumple=\"No\"));\nSet(var_ResultadoValidacionFirst,First(var_ResultadoValidacion));\n\n//Comprobamos las validaciones \nRefresh(Var_upc_Glosa);\n\nIf(\n    CountRows(var_ResultadoValidacion)<>0,\n    Switch(var_ResultadoValidacionFirst.Codigo,\n        \"REQ003\", //Información de matrícula\n        Set(varErrorMensaje,\n        LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa)),\n        \"REQ009\", //Validación de cursos hábiles\n        Set(varErrorMensaje,\n        LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa))\n    );\n    Set(\n        varModalError,\n        true\n    )\n);\n\nIf(!varModalError,\n    Refresh(Var_upc_Alumno);\n    Set(\n        tblDocenteSeccion,\n        Table(ParseJSON(\n            LookUp(\n                Var_upc_Alumno,\n                codigoUsuario = varCodigoUsuario && Nivel=varUsuarioNivel,jsonDocenteSeccion)\n            )\n        )\n    );\n    Clear(colDocenteSeccion);\n    ForAll(\n        tblDocenteSeccion,\n        Collect(\n            colDocenteSeccion,\n            {\n                Id: CountRows(colDocenteSeccion),\n                DisplayName: Concatenate(\n                    ThisRecord.Value.nombres,\n                    \" \",\n                    ThisRecord.Value.apellidos\n                ),\n                codigoPeriodo: ThisRecord.Value.codigoPeriodo,\n                nrc: ThisRecord.Value.nrc,\n                correoDocente: ThisRecord.Value.correoDocente,\n                docentePrincipal: Text( ThisRecord.Value.docentePrincipal),\n                usuarioDocente: Text(ThisRecord.Value.usuarioDocente)\n            }\n        )\n    );\n    Set(\n        tblAvanceNotas,\n        Table(ParseJSON(     \n            LookUp(\n                Var_upc_Alumno,\n                codigoUsuario = varCodigoUsuario && Nivel=varUsuarioNivel,jsonAvanceNotas)\n            )\n        )	\n    );\n    Clear(colAvanceNotas);\n    ForAll(\n        tblAvanceNotas,\n        Collect(\n            colAvanceNotas,\n            {\n                Id: CountRows(colAvanceNotas),\n                DisplayName: ThisRecord.Value.DesTipoPrueba,\n                CodTipoPrueba: ThisRecord.Value.CodTipoPrueba,\n                Nota: ThisRecord.Value.Nota,\n                CodCurso: ThisRecord.Value.CodCurso,\n                DescCurso: ThisRecord.Value.DescCurso\n            }\n        )\n    );\n    \n    Set(varHabilitarEnviarSol,false);\n     //limpiar seccion de reclamo\n    Reset(dpTipoReclamo);    \n    Reset(txtErrorSuma);\n    Reset(txtErrorSuma);\n    Reset(txtErrorDigitacion);\n    Concurrent(\n        Clear(colPreguntas),\n        Reset(txtPreguntaCorregidaParcialmente)\n    );\n    Concurrent(\n        Clear(colPreguntas),\n        Reset(txtPreguntaNoCorregida)\n    );\n   Concurrent(\n        Clear(colPreguntas),\n        Reset(txtPreguntaNoCorregida)\n    );\n    Concurrent(\n        Reset(dropSubTipoReclamo),\n        Reset(dropActividad),\n        Clear(colPreguntasProblemas)\n    );\n    Concurrent(\n        Reset(txtNoConsidero1),\n        Reset(txtNoConsidero2)\n    );\n    Navigate(ScreenRegistro)\n);\n//Oculta modal de carga\nSet(var_modalCargaHome,false)"
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Text: ="SIGUIENTE"
+            Width: =225
+            X: =1121
+            Y: =714
+      - Button1_3:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =varColorRojo
+            BorderThickness: =1
+            Color: =varColorRojo
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Font: =Font.'Open Sans Condensed'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+            OnSelect: |-
+              =Set(
+                  varModalError,
+                  false
+              );
+              Set(
+                  varIniciarRecolectarNotas,
+                  false
+              );
+              Reset(chbReglamento);
+              Navigate(ScreenReglamento)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Text: ="VOLVER"
+            Width: =225
+            X: =881
+            Y: =714
+      - Label5_7:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(116, 116, 116, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Size: =14
+            Text: ="TRÁMITES"
+            Width: =93
+            X: =86
+            Y: =110
+      - Label5_8:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =varColorRojo
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Size: =14
+            Text: ="/ CORRECCIÓN DE EVALUACIONES /"
+            Width: =265
+            X: =166
+            Y: =110
+      - Label5_9:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Height: =60
+            Size: =18
+            Text: ="CORRECCIÓN DE EVALUACIONES CONTINUAS"
+            Width: =319
+            X: =103
+            Y: =160
+      - Rectangle12_5:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =varColorRojo
+            Height: =50
+            Width: =8
+            X: =93
+            Y: =165
+      - Label9_1:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Semibold
+            Size: =18
+            Text: ="IMPORTANTE"
+            Width: =508
+            X: =470
+            Y: =160
+      - Rectangle12_4:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =varColorRojo
+            Height: =50
+            Width: =8
+            X: =450
+            Y: =165
+      - BanerLateral_3:
+          Control: CanvasComponent
+          ComponentName: BanerLateral
+          Properties:
+            Fill: =varColorFondo
+            Height: =768
+            Width: =60
+            varBandejaVisible: |-
+              =If(
+                  varUsuarioRol = "ALUMNO",
+                  true,
+                  false
+              )
+            varCodigoUsuario: =varAlumno.codigoUsuario
+            varEnlace: =varEnlaceHome
+            varLinkBandeja: =varLinkBandeja
+            varLinkHome: |-
+              =If(
+                  varUsuarioRol = "ALUMNO",
+                  varLinkHome,
+                  varUsuarioRol = "COUNTER",
+                  varLinkCounter,    
+                  varLinkEvaluador
+              )
+            varNivel: =varUsuarioNivel
+            varRol: =varUsuarioRol
+      - ModalMensajeError_3:
+          Control: CanvasComponent
+          ComponentName: ModalMensajeError
+          Properties:
+            BtnCerrar: |-
+              =Set(
+                  varModalError,
+                  false
+              );
+              ""
+            CabeceraImagen: =LookUp(Var_upc_Icono,codigoIcono=TablaConfiguracion.codigoIconoAlerta).imagenIcono
+            Height: =768
+            TextoMensaje: =varErrorMensaje
+            Visible: =varModalError
+            Width: =1366
+      - ModalCargando_3:
+          Control: CanvasComponent
+          ComponentName: ModalCargando
+          Properties:
+            Height: =768
+            Visible: =var_modalCargaHome
+            Width: =1366

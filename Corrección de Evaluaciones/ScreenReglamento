@@ -1,0 +1,404 @@
+Screens:
+  ScreenReglamento:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+      LoadingSpinnerColor: =RGBA(164, 38, 44, 1)
+    Children:
+      - Label9:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Semibold
+            Size: =18
+            Text: ="REGLAMENTO"
+            Width: =508
+            X: =470
+            Y: =160
+      - Button1:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisplayMode: |-
+              =
+              If(chbReglamento.Value, DisplayMode.Edit, DisplayMode.Disabled)
+            Fill: =varColorRojo
+            Font: =Font.'Open Sans Condensed'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+            OnSelect: |-
+              =If(
+                  chbReglamento.Value = true,
+                  Set(
+                      var_modalCargaHome,
+                      true
+                  );
+                  //Variable para iniciar la ejecución del timer que valida la informacion del servicio de notas
+                  Set(
+                      varIniciarRecolectarNotas,
+                      true
+                  );
+                  //Variable para tomar en cuenta la espera del timer
+                  Set(varDuracionEspera, 0);
+                  ,
+                  Set(
+                      varErrorMensaje,
+                      LookUp(Var_upc_Glosa, codigoGlosa = TablaGlosas.codigoGlosaAceptaTerminos, mensajeGlosa)
+                  );
+                  Set(
+                      varModalError,
+                      true
+                  )
+              )
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Text: ="SIGUIENTE"
+            Width: =225
+            X: =1121
+            Y: =714
+      - Button1_1:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =varColorRojo
+            BorderThickness: =1
+            Color: =varColorRojo
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Font: =Font.'Open Sans Condensed'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+            OnSelect: |-
+              =Set(
+                  varModalError,
+                  false
+              );
+              If(
+                  var_haveExtra,
+                  If(
+                      IsError(
+                          Patch(
+                              Var_upc_Alumno,
+                              LookUp(Var_upc_Alumno, codigoAlumno = varAlumno.codigoAlumno && Nivel = varAlumno.Nivel),
+                              {
+                                  jsonDetalleMatricula: JSON(LookUp(colDetalleMatriculaConcatenado,EndsWith(codigoPeriodo, varAlumno.CodigoPeriodo)).cursos),
+                                  Periodo: First(Filter(colDetalleMatriculaConcatenado,EndsWith(codigoPeriodo, varAlumno.CodigoPeriodo))).codigoPeriodo
+                              }
+                          )
+                      ),
+                      Set(varModalError,true);
+                      Set(varErrorMensaje, var_TextAlertaErrorExtraAcademicos)
+                      ,
+                      Navigate(ScreenMenu)
+                  )
+                  ,
+                  Navigate(ScreenMenu)
+              );
+              //Navigate(ScreenMenu)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Text: ="CANCELAR"
+            Width: =225
+            X: =881
+            Y: =714
+      - chbReglamento:
+          Control: Classic/CheckBox@2.1.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            CheckboxBorderColor: =RGBA(89, 0, 0, 1)
+            CheckmarkFill: =RGBA(0, 0, 0, 1)
+            Default: =If(varReglamento.aplicaValidacion=false,true,false)
+            Font: =Font.'Open Sans Condensed'
+            HoverColor: =RGBA(89, 0, 0, 1)
+            Size: =15
+            Text: ="¿Aceptar términos y condiciones del reglamento?"
+            Visible: =If(varReglamento.aplicaValidacion=true,true,false)
+            Width: =366
+            X: =957
+            Y: =650
+      - InfoAlumno_1:
+          Control: CanvasComponent
+          ComponentName: InfoAlumno
+          Properties:
+            Height: =425
+            Width: =332
+            X: =81
+            Y: =230
+            comCodigoAlumno: =varAlumno.codigoAlumno
+            comPeriodo: =varAlumno.Periodo
+            comPrograma: =varAlumno.CodigodePrograma &" - "& varAlumno.ProgramaDescripcion
+      - BanerSuperior_2:
+          Control: CanvasComponent
+          ComponentName: BanerSuperior
+          Properties:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =115
+            Width: =1306
+            X: =58
+            comImagenAlumno: =varFotoAlumno
+            comNombreUsuario: =If(varUsuarioRol="ALUMNO",varNombreAlumno,User().FullName)
+      - Label5_3:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(116, 116, 116, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Size: =14
+            Text: ="TRÁMITES"
+            Width: =93
+            X: =86
+            Y: =110
+      - Label5_5:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =varColorRojo
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Size: =14
+            Text: ="/ CORRECCIÓN DE EVALUACIONES /"
+            Width: =265
+            X: =166
+            Y: =110
+      - Label5_6:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Height: =60
+            Size: =18
+            Text: ="CORRECCIÓN DE EVALUACIONES CONTINUAS"
+            Width: =319
+            X: =103
+            Y: =160
+      - Rectangle12_1:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =varColorRojo
+            Height: =50
+            Width: =8
+            X: =93
+            Y: =165
+      - Rectangle12_3:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =varColorRojo
+            Height: =50
+            Width: =8
+            X: =450
+            Y: =165
+      - Container1:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            Fill: =varColorFondo
+            Height: =410
+            PaddingBottom: =5
+            PaddingLeft: =5
+            PaddingRight: =5
+            PaddingTop: =5
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            Width: =873
+            X: =450
+            Y: =235
+          Children:
+            - Label10:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Justify
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  DisplayMode: =DisplayMode.View
+                  Fill: =varColorFondo
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =318
+                  PaddingBottom: =10
+                  PaddingLeft: =10
+                  PaddingRight: =10
+                  PaddingTop: =10
+                  Text: |-
+                    =Substitute(         
+                        Substitute(
+                            varAvisoReglamento.mensajeAviso,
+                            "[[numeroDias]]",
+                            Concatenate(varConfiguracionTramite.duracion, If( varConfiguracionTramite.duracion > 1," días"," día"))
+                        ),
+                        "[[tipoDuracion]]",
+                            Lower(varTipoDuracion)
+                    )
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =834
+                  X: =16
+                  Y: =68
+            - Label22_1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =39
+                  OnSelect: =
+                  Size: =18
+                  Text: =varAvisoReglamento.nombreAviso
+                  Width: =573
+                  X: =88
+                  Y: =16
+            - Image5_1:
+                Control: Image@2.2.3
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Height: =40
+                  Image: =varAvisoReglamento.imagenAviso
+                  OnSelect: =
+                  Width: =40
+                  X: =36
+                  Y: =16
+      - Timer1:
+          Control: Timer@2.1.0
+          Properties:
+            AutoPause: =varPausarRecolectarNotas
+            AutoStart: =varIniciarRecolectarNotas
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =ColorFade(Self.BorderColor, 70%)
+            DisabledColor: =ColorFade(Self.Fill, 90%)
+            DisabledFill: =ColorFade(Self.Fill, 70%)
+            Duration: =3000
+            Fill: =RGBA(164, 38, 44, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+            OnTimerEnd: |
+              =
+              Set(varDuracionEspera, Timer1.Duration + varDuracionEspera);
+              Set(varMaximaDuracionEsperaWS,120000);//2 min
+              Refresh(Var_upc_Alumno);
+              Set(
+                  varTieneDetMatricula,
+                  !IsBlank(
+                      LookUp(
+                          Var_upc_Alumno,
+                          codigoUsuario = varCodigoUsuario && Nivel = varUsuarioNivel,
+                          jsonDetalleMatricula
+                      )
+                  )
+              );
+              Set(
+                  varTieneNotas,
+                  !IsBlank(
+                      LookUp(
+                          Var_upc_Alumno,
+                          codigoUsuario = varCodigoUsuario && Nivel = varUsuarioNivel,
+                          jsonAvanceNotas
+                      )
+                  )
+              );
+              Set(
+                  varNotasCargadas,
+                  LookUp(
+                      Var_upc_Alumno,
+                      codigoUsuario = varCodigoUsuario && Nivel = varUsuarioNivel,
+                      flagAvanceNotas
+                  )
+              );
+
+              If(
+                  varNotasCargadas="No" && varTieneDetMatricula,
+                      Set(varRepetirRecolectarNotas,false);
+                      Set(varPausarRecolectarNotas,true);
+                      Set(varIniciarRecolectarNotas,false);
+                      Set(var_modalCargaHome,false);
+                      Navigate(ScreenImportante)
+                  ,
+                  If(varDuracionEspera < varMaximaDuracionEsperaWS && (varNotasCargadas = "Si" Or IsBlank(varNotasCargadas)),
+                          Set(varRepetirRecolectarNotas,true);
+                          Set(varPausarRecolectarNotas,false);
+                          Set(varIniciarRecolectarNotas,true)
+                      ,
+                          Set(varRepetirRecolectarNotas,false);
+                          Set(varPausarRecolectarNotas,true);
+                          Set(varIniciarRecolectarNotas,false);
+                          Set(var_modalCargaHome,false);
+                          Set(varModalError,true);
+                          Set(varErrorMensaje,LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaFaltaInfoWS,mensajeGlosa));
+
+                  )
+
+              )
+            OnTimerStart: =Refresh(Var_upc_Alumno)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Repeat: =varRepetirRecolectarNotas
+            Visible: =false
+            X: =19
+            Y: =714
+      - BanerLateral_2:
+          Control: CanvasComponent
+          ComponentName: BanerLateral
+          Properties:
+            Fill: =varColorFondo
+            Height: =768
+            Width: =60
+            varBandejaVisible: |-
+              =If(
+                  varUsuarioRol = "ALUMNO",
+                  true,
+                  false
+              )
+            varCodigoUsuario: =varAlumno.codigoUsuario
+            varEnlace: =varEnlaceHome
+            varLinkBandeja: =varLinkBandeja
+            varLinkHome: |-
+              =If(
+                  varUsuarioRol = "ALUMNO",
+                  varLinkHome,
+                  varUsuarioRol = "COUNTER",
+                  varLinkCounter,
+                  varLinkEvaluador
+              )
+            varNivel: =varUsuarioNivel
+            varRol: =varUsuarioRol
+      - ModalMensajeError_4:
+          Control: CanvasComponent
+          ComponentName: ModalMensajeError
+          Properties:
+            BtnCerrar: |-
+              =Set(
+                  varModalError,
+                  false
+              );
+              ""
+            CabeceraImagen: =LookUp(Var_upc_Icono,codigoIcono=TablaConfiguracion.codigoIconoAlerta).imagenIcono
+            Height: =768
+            TextoMensaje: =varErrorMensaje
+            Visible: =varModalError
+            Width: =1366
+      - ModalCargando_4:
+          Control: CanvasComponent
+          ComponentName: ModalCargando
+          Properties:
+            Height: =768
+            Visible: =var_modalCargaHome
+            Width: =1366

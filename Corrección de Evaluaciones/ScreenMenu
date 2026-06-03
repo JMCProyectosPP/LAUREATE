@@ -1,0 +1,482 @@
+Screens:
+  ScreenMenu:
+    Properties:
+      Fill: =RGBA(255, 255, 255, 1)
+      LoadingSpinnerColor: =RGBA(164, 38, 44, 1)
+      OnVisible: |-
+        =Clear(colDetalleMatricula);
+        Clear(colDocenteSeccion)
+    Children:
+      - GalleryConfiguracionTramite:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Height: =346
+            Items: |
+              =Filter(
+                  Var_upc_ConfiguracionTramite,
+                  codigoTramite.Value in Filter(Var_upc_Tramite, codigoGrupo.Value = "GRU002").codigoTramite
+              )
+            TemplateSize: =146
+            Width: =899
+            X: =407
+            Y: =249
+          Children:
+            - Rectangle13:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(116, 116, 116, 1)
+                  BorderThickness: =1
+                  Fill: =RGBA(0, 0, 0, 0)
+                  Height: =118
+                  OnSelect: =Select(Parent)
+                  Width: =874
+                  X: =12
+                  Y: =12
+            - Subtitle2:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =varColorMorado
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =24
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Text: =LookUp(Var_upc_Tramite, codigoTramite = ThisItem.codigoTramite.Value, nombreTramite)
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =434
+                  X: =31
+                  Y: =27
+            - Separator4:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Height: =8
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - Self.Height
+            - Label11:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  OnSelect: =Select(Parent)
+                  Text: |-
+                    =Concatenate(
+                        "Tiempo máx de atención: ",
+                        ThisItem.duracion,
+                        If(
+                            ThisItem.duracion > 1,
+                            " días ",
+                            " día "
+                        ),
+                        Lower(
+                            LookUp(Var_upc_TipoDuracion, codigoTipoDuracion = ThisItem.codigoTipoDuracion.Value, nombreTipoDuracion)
+                        ),
+                        "."
+                    )
+                  Width: =434
+                  X: =31
+                  Y: =67
+            - Button3:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =RGBA(255, 0, 0, 1)
+                  BorderThickness: =3
+                  Color: =RGBA(255, 0, 0, 1)
+                  DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                  Fill: =RGBA(255, 255, 255, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                  OnSelect: =Launch(LookUp(Var_upc_Tramite, codigoTramite = ThisItem.codigoTramite.Value, rutaModelo))
+                  PressedBorderColor: =Self.Fill
+                  PressedColor: =Self.Fill
+                  PressedFill: =Self.Color
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Text: ="Ver modelo"
+                  X: =522
+                  Y: =67
+            - Button4:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =ColorFade(Self.Fill, -15%)
+                  Color: =RGBA(255, 255, 255, 1)
+                  DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                  Fill: =RGBA(255, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                  OnSelect: |-
+                    =//Variables ///////////////////////
+                    Concurrent(
+                        Set(
+                            var_TramiteRealizar,
+                            ThisItem.codigoTramite.Value
+                        ),
+                        Set(
+                            var_NombreTramite,
+                            ThisItem.'codigoTramite: nombreTramite'
+                        ),
+                        Set(
+                            varCodigoTipoDuracion,
+                            ThisItem.codigoTipoDuracion
+                        ),
+                        Set(
+                            varCodigoReglamento,
+                            ThisItem.codigoReglamento
+                        ),
+                        Clear(colDetalleMatricula),
+                        Clear(colDocenteSeccion)
+                    );
+
+                    Set(
+                        varTramiteInit,
+                        LookUp(
+                            Var_upc_Tramite,
+                            codigoTramite = var_TramiteRealizar
+                        )
+                    );
+
+                    //Mensaje de error para acutalización de alumnos en extraacadémicos
+                    Set(var_TextAlertaErrorExtraAcademicos, 
+                        LookUp(Var_upc_Glosa, 
+                            codigoGlosa = TablaGlosas.codigoGlosaErrorExtraAcademicos, 
+                            mensajeGlosa)
+                    );
+
+                    Set(
+                        var_TextAlertaExtraAcademicos,
+                        LookUp(
+                            Var_upc_Glosa,
+                            codigoGlosa = TablaGlosas.codigoGlosaTextAlertaExtraAcademicos, //"GLO784";
+                            mensajeGlosa
+                        )
+                    );
+                    Set(
+                        var_havePeriodoExtraacademico,
+                        !IsBlank(varTramiteInit.periodosExtraacademicos)
+                    );
+                    Set(
+                        var_viewMdlCfrmPeriodo,
+                        And(
+                            var_haveExtra,
+                            var_havePeriodoExtraacademico
+                        )
+                    );
+                    If(
+                        !var_haveExtra,
+                        If(
+                            IsError(
+                                Patch(
+                                    Var_upc_Alumno,
+                                    LookUp(Var_upc_Alumno, codigoAlumno = varAlumno.codigoAlumno && Nivel = varAlumno.Nivel),
+                                    {
+                                        jsonDetalleMatricula: JSON(Filter(var_DetalleMatriculaPatch,codigoPeriodo = varAlumno.Periodo))
+                                    }
+                                )
+                            )
+                            ,
+                            Set(varModalError,true);    
+                            Set(varErrorMensaje, var_TextAlertaErrorExtraAcademicos)
+                            ,
+                            Set(iniciarTimerRegular,true);
+                            Set(var_modalCargaHome, true )
+                        ) 
+                    );
+
+                    If(
+                        var_haveExtra && (var_viewMdlCfrmPeriodo = false),
+                        If(
+                            IsError(
+                                Patch(
+                                    Var_upc_Alumno,
+                                    LookUp(Var_upc_Alumno, codigoAlumno = varAlumno.codigoAlumno && Nivel = varAlumno.Nivel),
+                                    {
+                                        jsonDetalleMatricula: JSON(LookUp(var_DetalleMatriculaPatch,codigoPeriodo = varAlumno.Periodo).cursos)
+                                    }
+                                )
+                            )
+                            ,
+                            Set(varModalError,true);    
+                            Set(varErrorMensaje, var_TextAlertaErrorExtraAcademicos)
+                            ,
+                            Set(iniciarTimerRegular,true)
+                        )
+                    )
+                  PressedBorderColor: =Self.Fill
+                  PressedColor: =Self.Fill
+                  PressedFill: =Self.Color
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Text: ="Iniciar trámite"
+                  X: =701
+                  Y: =67
+      - BanerSuperior_1:
+          Control: CanvasComponent
+          ComponentName: BanerSuperior
+          Properties:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =115
+            Width: =1308
+            X: =58
+            comImagenAlumno: =varFotoAlumno
+            comNombreUsuario: =If(varUsuarioRol="ALUMNO",varNombreAlumno,User().FullName)
+      - Label5:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(116, 116, 116, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Size: =14
+            Text: ="TRÁMITES"
+            Width: =93
+            X: =86
+            Y: =110
+      - Label5_1:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =varColorRojo
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Size: =14
+            Text: ="/ LISTADO DE TRÁMITES /"
+            Width: =265
+            X: =166
+            Y: =110
+      - Label5_2:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Size: =18
+            Text: ="CORRECCIÓN DE EVALUACIÓN"
+            Width: =462
+            X: =103
+            Y: =163
+      - Rectangle12:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =varColorRojo
+            Height: =50
+            Width: =8
+            X: =93
+            Y: =165
+      - Container1_1:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            BorderColor: =
+            DropShadow: =DropShadow.None
+            Height: =310
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Width: =301
+            X: =86
+            Y: =228
+          Children:
+            - Gallery4_1:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Height: =265
+                  Items: |-
+                    =Filter(
+                        Var_upc_AccesoRapido,
+                        codigoGrupo.Value ="GRU002")
+                  TemplateSize: =30
+                  Width: =267
+                  X: =11
+                  Y: =45
+                Children:
+                  - Button8_1:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        Align: =Align.Left
+                        BorderColor: =
+                        BorderStyle: =BorderStyle.None
+                        Color: =RGBA(0, 0, 0, 1)
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(234, 234, 234, 1)
+                        Font: =Font.'Open Sans'
+                        Height: =30
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                        OnSelect: |-
+                          =Launch(ThisItem.'codigoEnlace: ruta'.Value)
+                        PaddingLeft: =60
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        Size: =10
+                        Text: |-
+                          =ThisItem.'codigoEnlace: nombre'.Value
+                        Width: =257
+                  - Icon4:
+                      Control: Classic/Icon@2.5.0
+                      Properties:
+                        BorderColor: =RGBA(89, 0, 0, 1)
+                        Color: =RGBA(89, 0, 0, 1)
+                        Height: =20
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        Icon: =Icon.NextArrow
+                        OnSelect: =Select(Parent)
+                        Width: =20
+                        X: =23
+                        Y: =5
+            - Label4_2:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =29
+                  Size: =16
+                  Text: ="Accesos Rápidos"
+                  X: =31
+                  Y: =16
+      - BanerLateral_1:
+          Control: CanvasComponent
+          ComponentName: BanerLateral
+          Properties:
+            Fill: =varColorFondo
+            Height: =768
+            Width: =60
+            varBandejaVisible: |-
+              =If(
+                  varUsuarioRol = "ALUMNO",
+                  true,
+                  false
+              )
+            varCodigoUsuario: =varCodigoUsuario
+            varEnlace: =varEnlaceHome
+            varLinkBandeja: =varLinkBandeja
+            varLinkHome: |-
+              =If(
+                  varUsuarioRol = "ALUMNO",
+                  varLinkHome,
+                  varUsuarioRol = "COUNTER",
+                  varLinkCounter,
+                  varLinkEvaluador
+              )
+            varNivel: =varUsuarioNivel
+            varRol: =varUsuarioRol
+      - ModalMensajeError_1:
+          Control: CanvasComponent
+          ComponentName: ModalMensajeError
+          Properties:
+            BtnCerrar: |-
+              =Set(
+                  varModalError,
+                  false
+              );
+              ""
+            CabeceraImagen: =LookUp(Var_upc_Icono,codigoIcono=TablaConfiguracion.codigoIconoAlerta).imagenIcono
+            Height: =768
+            TextoMensaje: =varErrorMensaje
+            Visible: =varModalError
+            Width: =1366
+      - ModalCargando_1:
+          Control: CanvasComponent
+          ComponentName: ModalCargando
+          Properties:
+            Height: =768
+            Visible: =var_modalCargaHome
+            Width: =1366
+      - ModalConfirmPeriodo_1:
+          Control: CanvasComponent
+          ComponentName: ModalConfirmPeriodo
+          Properties:
+            BtnAceptar: |-
+              =If(
+                  IsError(
+                      Patch(
+                          Var_upc_Alumno,
+                          LookUp(Var_upc_Alumno, codigoAlumno = varAlumno.codigoAlumno),
+                          {
+                              Periodo: var_periodoExtraSelected,
+                              CodigoPeriodo: Right(Text(var_periodoExtraSelected),2),
+                              jsonDetalleMatricula: JSON(LookUp(var_DetalleMatriculaPatch,codigoPeriodo = var_periodoExtraSelected && programa = var_programaExtraSelected).cursos)
+                          }
+                      )
+                  ),
+                  //Set(var_modalAlerta1;true);;
+                  //Set(var_TextAlerta1; "Error al actualizar alumno")
+                  Set(varModalError,true);    
+                  Set(varErrorMensaje, var_TextAlertaErrorExtraAcademicos)
+              )
+            BtnCerrar: ="Texto"
+            Height: =768
+            ImagenCabecera: =SampleImage
+            TextEncabezado: =var_TextAlertaExtraAcademicos
+            Visible: =var_viewMdlCfrmPeriodo
+            Width: =1366
+            colPeriodos: =col_PeriodosExtraFiltrados
+      - TimerExtraacademico:
+          Control: Timer@2.1.0
+          Properties:
+            AutoStart: =iniciarTimerExtra
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =ColorFade(Self.BorderColor, 70%)
+            DisabledColor: =ColorFade(Self.Fill, 90%)
+            DisabledFill: =ColorFade(Self.Fill, 70%)
+            Duration: =30000
+            Fill: =RGBA(164, 38, 44, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+            OnTimerEnd: "=If(\r\n    iniciarTimerExtra,\r\n    Concurrent(\r\n        Clear(colDetalleMatricula),\r\n        Clear(colDocenteSeccion)\r\n    );\r\n    Refresh(Var_upc_Alumno);\r\n    Set(\r\n        varAlumno,\r\n        LookUp(\r\n            Var_upc_Alumno,\r\n            codigoUsuario = varCodigoUsuario && Nivel=varUsuarioNivel\r\n        )\r\n    );\r\n    Set(jsonDetalleMatricula,LookUp(Var_upc_Alumno, codigoAlumno = varAlumno.codigoAlumno,jsonDetalleMatricula));\r\n    Set(parsedJsonDetalleMatricula, Table(ParseJSON(jsonDetalleMatricula)));\r\n    Set(codigoPeriodoUpdate, Text(First(parsedJsonDetalleMatricula).Value.codigoPeriodo));\r\n    If(\r\n        var_periodoExtraSelected = codigoPeriodoUpdate,\r\n        Set(\r\n            tblDetalleMatricula,\r\n            Table(ParseJSON(varAlumno.jsonDetalleMatricula))\r\n        );\r\n        Set(\r\n            tblDocenteSeccion,\r\n            Table(ParseJSON(varAlumno.jsonDocenteSeccion))\r\n        );\r\n        Set(\r\n            varAlumnoJson,\r\n            ParseJSON(varAlumno.jsonAlumno)\r\n        );\r\n        //Detalle de matrícula\r\n        ForAll(\r\n            tblDetalleMatricula,\r\n            Collect(\r\n                colDetalleMatricula,\r\n                {\r\n                    Id: CountRows(colDetalleMatricula),\r\n                    DisplayName: Concatenate(\r\n                        ThisRecord.Value.MateriaCodigo,\r\n                        ThisRecord.Value.numeroCurso,\r\n                        \" - \",\r\n                        ThisRecord.Value.MateriaDescripcion\r\n                    ),\r\n                    materia: Text(ThisRecord.Value.MateriaDescripcion),\r\n                    nrc: Text(ThisRecord.Value.nrc),\r\n                    numeroCurso: Text(ThisRecord.Value.numeroCurso),\r\n                    materiaCodigo: Text(ThisRecord.Value.MateriaCodigo),\r\n                    codCurso: Concatenate(\r\n                        ThisRecord.Value.MateriaCodigo,\r\n                        ThisRecord.Value.numeroCurso\r\n                    ),\r\n                    estadoInscripcionCodigo: Text(ThisRecord.Value.estadoInscripcionCodigo),\r\n                    partePeriodocodigo:Text(ThisRecord.Value.partePeriodocodigo)\r\n                }\r\n            )\r\n        );\r\n        ForAll(\r\n            tblDocenteSeccion,\r\n            Collect(\r\n                colDocenteSeccion,\r\n                {\r\n                    Id: CountRows(colDocenteSeccion),\r\n                    DisplayName: Concatenate(\r\n                        ThisRecord.Value.nombres,\r\n                        \" \",\r\n                        ThisRecord.Value.apellidos\r\n                    ),\r\n                    codigoPeriodo: ThisRecord.Value.codigoPeriodo,\r\n                    nrc: ThisRecord.Value.nrc,\r\n                    correoDocente: ThisRecord.Value.correoDocente,\r\n                    docentePrincipal: Text( ThisRecord.Value.docentePrincipal),\r\n                    usuarioDocente: Text(ThisRecord.Value.usuarioDocente)\r\n                }\r\n            )\r\n        );\r\n        // ------------------------ VIGENCIAS MODULARES ----------------------------- //\r\n        // OBTENER PARTE PERIODO CÓDIGO DE DETALLE MATRÍCULA\r\n        ClearCollect(\r\n            col_detalleMatricula,\r\n            ForAll(\r\n                tblDetalleMatricula,\r\n                {\r\n                    partePeriodocodigo:Text(Value.partePeriodocodigo)\r\n                }\r\n            )\r\n        );\r\n        ClearCollect(\r\n            col_VigenciasModulares,\r\n            {\r\n                //MÓDULO A\r\n                moduloA:If(IsBlank(LookUp(col_detalleMatricula,partePeriodocodigo=TablaConfiguracion.valorModuloA).partePeriodocodigo),\"No\",\"Si\"),\r\n                //MÓDULO B\r\n                moduloB:If(IsBlank(LookUp(col_detalleMatricula,partePeriodocodigo=TablaConfiguracion.valorModuloB).partePeriodocodigo),\"No\",\"Si\"),\r\n                //MÓDULO RE\r\n                modulo1:If(IsBlank(LookUp(col_detalleMatricula,partePeriodocodigo=TablaConfiguracion.valorModuloRE).partePeriodocodigo),\"No\",\"Si\")\r\n            }\r\n        );\r\n\r\n        //Sanciones a aplicar para cursos desde la lista de mantenimientos\r\n        ClearCollect(\r\n            colTiposSancionesTramiteCurso,\r\n            Filter(\r\n                Var_upc_ConfiguracionTramiteSancion,\r\n                codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite \r\n                && activo.Value = TablaConfiguracion.filtroEstadoActivoSancion//\"Si\" \r\n                && (\r\n                    codigoTipoSancion.Value = TablaConfiguracion.TipoSancion04 //varTipoSancion04 \r\n                )\r\n            )\r\n        );\r\n\r\n        //Todo el registro de la configuración del trámite\r\n        Set(varConfiguracionTramite,\r\n            LookUp(Var_upc_ConfiguracionTramite,And(codigoTramite.Value=var_TramiteRealizar,codigoNivel.Value = varAlumno.Nivel))\r\n        );\r\n        //Todo el registro de la configuración del trámite\r\n        Set(varConfiguracionTramite,\r\n            LookUp(Var_upc_ConfiguracionTramite,And(codigoTramite.Value=var_TramiteRealizar,codigoNivel.Value = varAlumno.Nivel))\r\n        );\r\n\r\n        //Columna codigoConfiguracionTramite desde la configuración del trámite\r\n        Set(var_confTRam,\r\n            LookUp(Var_upc_ConfiguracionTramite,And(codigoTramite.Value=var_TramiteRealizar,codigoNivel.Value = varAlumno.Nivel),codigoConfiguracionTramite)\r\n        );\r\n\r\n        //Tipo de duracion\r\n        Set(varTipoDuracion,\r\n            LookUp(Var_upc_TipoDuracion, codigoTipoDuracion = TablaConfiguracion.codigoTipoDuracion2, nombreTipoDuracion)\r\n        );\r\n        \r\n        //Configuracion actividades\r\n        Refresh(Var_upc_ConfiguracionTramiteActividades);\r\n        ClearCollect(col_ActividadesAD,\r\n            Filter(Var_upc_ConfiguracionTramiteActividades,\r\n                And(codigoConfiguracionTramite.Value = var_confTRam,estado.Value = TablaConfiguracion.codigoEstadoActividad)\r\n            )\r\n        );\r\n        //Obtener actividad de registro\r\n        Set(var_PrimeraActividad,\r\n            LookUp(col_ActividadesAD,orden = TablaConfiguracion.numOrdenPrimeraActividad)\r\n        );\r\n\r\n        //Reglamentos\r\n        //Se filtra el reglamento del tramite seleccionado\r\n        Refresh(Var_upc_Reglamento);\r\n        Set(varReglamento,First(Filter(Var_upc_Reglamento,codigoReglamento = varCodigoReglamento.Value)));\r\n\r\n        //Validaciones informacion en campos de pantalla de registro\r\n        Refresh(Var_upc_Glosa);\r\n        ClearCollect(colGlosasValidacionesRequeridas,\r\n            Filter(Var_upc_Glosa,\r\n                codigoTramite= var_TramiteRealizar\r\n            )\r\n        );\r\n\r\n        //Validaciones\r\n        Refresh(Var_upc_Validacion);\r\n        Refresh(Var_upc_ConfiguracionTramiteVigencia);\r\n\r\n        //Obtenemos la configuracion de vigencia del tramite de la lista configuracion de vigencia REQ001 Vigencia sin periodo y con fecha\r\n        ClearCollect(colVigencia,\r\n            Filter(Var_upc_ConfiguracionTramiteVigencia,\r\n            codigoConfiguracionTramite.Value= Text( var_confTRam) \r\n            && nivel=varAlumno.Nivel\r\n            && codigoModalidad=varAlumno.modalidadEstudio\r\n            && estado.Value= TablaConfiguracion.filtroEstadoVigencia\r\n            && (\r\n                fechaInicio<=Today() && fechaFin>=Today()\r\n            )\r\n        ));\r\n\r\n        //Validar si existen vigencias para el periodo - REQ099 Vigencia por periodo sin fecha\r\n        ClearCollect(colVigenciaPorPeriodo,\r\n            Filter(Var_upc_ConfiguracionTramiteVigencia,\r\n            codigoConfiguracionTramite.Value=Text( var_confTRam) \r\n            && nivel=varAlumno.Nivel\r\n            && codigoModalidad=varAlumno.modalidadEstudio\r\n            && periodoCompuesto=varAlumno.Periodo\r\n        ));\r\n\r\n        //Obtenemos la configuracion de vigencia del tramite de la lista configuracion de vigencia Regular REQ008 Vigencia por periodo y con fecha\r\n        //Regular o Modular(AC - 01- 10-20)\r\n        ClearCollect(colvigenciaperiodoRegular,\r\n            Filter(Var_upc_ConfiguracionTramiteVigencia,\r\n            codigoConfiguracionTramite.Value=Text( var_confTRam) \r\n            && nivel=varAlumno.Nivel\r\n            && codigoModalidad=varAlumno.modalidadEstudio\r\n            && periodoCompuesto=varAlumno.Periodo\r\n            && estado.Value=TablaConfiguracion.filtroEstadoVigencia \r\n            && (\r\n                fechaInicio<=Today() && fechaFin>=Today()\r\n            )\r\n        ));\r\n\r\n        //Obtenemos la configuracion de vigencia del tramite de la lista configuracion de vigencia Regular por periodo\r\n        ClearCollect(colvigenciaperiodoInfo,\r\n        Filter(Var_upc_ConfiguracionTramiteVigencia,\r\n            codigoConfiguracionTramite.Value= Text(var_confTRam) \r\n            && nivel=varAlumno.Nivel \r\n            && codigoModalidad=varAlumno.modalidadEstudio \r\n            && estado.Value=TablaConfiguracion.filtroEstadoVigencia\r\n            //&& periodoCompuesto=varAlumno.Periodo\r\n        ));\r\n\r\n        //Validación de vigencia modular\r\n        //Se busca alguna vigencia configurada con modulo A\r\n        If(\r\n            First(col_VigenciasModulares).moduloA = \"Si\",\r\n            Set(\r\n                var_vigenciaA,\r\n                If(\r\n                    !IsBlank(\r\n                        LookUp(\r\n                            Var_upc_ConfiguracionTramiteVigencia,\r\n                            codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite \r\n                            && nivel = varAlumno.Nivel \r\n                            && flagModular = TablaConfiguracion.filtroVigenciaModular\r\n                            && codigoModulo = TablaConfiguracion.valorModuloA\r\n                            && codigoModalidad = varAlumno.modalidadEstudio\r\n                            && estado.Value = TablaConfiguracion.filtroEstadoVigencia\r\n                            && (\r\n                                fechaInicio <= Today() && fechaFin >= Today()\r\n                            )\r\n                        )\r\n                    ),\r\n                    \"Si\",\r\n                    \"No\"\r\n                )\r\n            ),\r\n            Set(\r\n                var_vigenciaA,\r\n                \"No\"\r\n            )\r\n        );\r\n        //Se busca alguna vigencia configurada con modulo B\r\n        If(\r\n            First(col_VigenciasModulares).moduloB = \"Si\",\r\n            Set(\r\n                var_vigenciaB,\r\n                If(\r\n                    !IsBlank(\r\n                        LookUp(\r\n                            Var_upc_ConfiguracionTramiteVigencia,\r\n                            codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite \r\n                            && nivel = varAlumno.Nivel \r\n                            && flagModular = TablaConfiguracion.filtroVigenciaModular\r\n                            && codigoModulo = TablaConfiguracion.valorModuloB\r\n                            && codigoModalidad = varAlumno.modalidadEstudio\r\n                            && estado.Value = TablaConfiguracion.filtroEstadoVigencia\r\n                            && (\r\n                                fechaInicio <= Today() && fechaFin >= Today()\r\n                            )\r\n                        )\r\n                    ),\r\n                    \"Si\",\r\n                    \"No\"\r\n                )\r\n            ),\r\n            Set(\r\n                var_vigenciaB,\r\n                \"No\"\r\n            )\r\n        );\r\n        //Se busca alguna vigencia configurada con modulo 1\r\n        If(\r\n            First(col_VigenciasModulares).modulo1 = \"Si\",\r\n            Set(\r\n                var_vigencia1,\r\n                If(\r\n                    !IsBlank(\r\n                        LookUp(\r\n                            Var_upc_ConfiguracionTramiteVigencia,\r\n                            codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite \r\n                            && nivel = varAlumno.Nivel \r\n                            && flagModular = TablaConfiguracion.filtroVigenciaModular\r\n                            && codigoModulo = TablaConfiguracion.valorModuloRE\r\n                            && codigoModalidad = varAlumno.modalidadEstudio\r\n                            && estado.Value = TablaConfiguracion.filtroEstadoVigencia\r\n                            && (\r\n                                fechaInicio <= Today() && fechaFin >= Today()\r\n                            )\r\n                        )\r\n                    ),\r\n                    \"Si\",\r\n                    \"No\"\r\n                )\r\n            ),\r\n            Set(\r\n                var_vigencia1,\r\n                \"No\"\r\n            )\r\n        );\r\n\r\n        Clear(colVigenciasActivas);\r\n        If(varAlumno.modalidadEstudio = TablaConfiguracion.valorModalidadEPE,\r\n            \r\n            If(var_vigenciaA = \"Si\",\r\n                Collect(colVigenciasActivas,\r\n                    {\r\n                        modulo: TablaConfiguracion.valorModuloA,\r\n                        vigente: \"Si\"\r\n                    }\r\n                )\r\n            );\r\n            If(var_vigenciaB = \"Si\",\r\n            Collect(colVigenciasActivas,\r\n                    {\r\n                        modulo: TablaConfiguracion.valorModuloB,\r\n                        vigente: \"Si\"\r\n                    }\r\n                )\r\n            );\r\n            If(var_vigencia1 = \"Si\",\r\n                Collect(colVigenciasActivas,\r\n                    {\r\n                        modulo: TablaConfiguracion.valorModuloRE,\r\n                        vigente: \"Si\"\r\n                    }\r\n                )\r\n            )\r\n        );\r\n\r\n        //Obtenemos la coleccion de validaciones - Pantalla 1 \r\n        ClearCollect(colValidaciones,\r\n            Filter(Var_upc_Validacion,\r\n                estado.Value = TablaConfiguracion.filtroEstadoValidacion\r\n                && codigoConfiguracionTramite.Value=var_confTRam \r\n                && (codigoRequisito.Value = If(\r\n                        varUsuarioRol = TablaConfiguracion.RolAlumno,\"REQ001\",\"\") || //REQ001 Vigencia sin periodo y con fecha  \r\n                    //codigoRequisito.Value = \"REQ008\" || //REQ008 Vigencia por periodo y con fecha\r\n                    codigoRequisito.Value = If(\r\n                        varUsuarioRol = TablaConfiguracion.RolAlumno,\"REQ099\",\"\") || //REQ099 Vigencia por periodo sin fecha\r\n                    codigoRequisito.Value = If(\r\n                        varUsuarioRol = TablaConfiguracion.RolAlumno,\r\n                        If(\r\n                            varAlumno.modalidadEstudio = TablaConfiguracion.valorModalidadEPE,\r\n                            \"REQ040\",\r\n                            varAlumno.modalidadEstudio = TablaConfiguracion.valorModalidadPregrado,\r\n                            \"REQ008\"\r\n                        ),\r\n                        \"\"\r\n                    )            \r\n                )\r\n            )\r\n        );\r\n\r\n        //Validación de los requisitos\r\n        Set(varModalError,false);\r\n        Clear(colCumpleValidacion);\r\n\r\n        ForAll(Sort(colValidaciones,orden,SortOrder.Ascending),\r\n            Switch(ThisRecord.codigoRequisito.Value,    \r\n                \"REQ001\", //REQ001 Vigencia sin periodo y con fecha\r\n                Collect(colCumpleValidacion,{\r\n                    Codigo:ThisRecord.codigoRequisito.Value,\r\n                    Cumple:If(CountRows(colVigencia)>0,\"Si\",\"No\"), \r\n                    Glosa:ThisRecord.codigoGlosa.Value}),\r\n                \"REQ099\", //REQ099 Vigencia por periodo sin fecha\r\n                Collect(colCumpleValidacion,{\r\n                    Codigo:ThisRecord.codigoRequisito.Value,\r\n                    Cumple:If(CountRows(colVigenciaPorPeriodo)>0,\"Si\",\"No\"),\r\n                    Glosa:ThisRecord.codigoGlosa.Value}),            \r\n                \"REQ008\", //REQ008 Vigencia por periodo y con fecha\r\n                Collect(colCumpleValidacion,{\r\n                    Codigo:ThisRecord.codigoRequisito.Value,\r\n                    Cumple:If(CountRows(colvigenciaperiodoRegular)>0,\"Si\",\"No\"),\r\n                    Glosa:ThisRecord.codigoGlosa.Value}),\r\n                \"REQ040\",\r\n                Collect(\r\n                    colCumpleValidacion,\r\n                    {\r\n                        Codigo: ThisRecord.codigoRequisito.Value,\r\n                        Cumple: If(\r\n                            Or(\r\n                                var_vigenciaA = \"Si\",\r\n                                var_vigenciaB = \"Si\",\r\n                                var_vigencia1 = \"Si\"\r\n                            ),\r\n                            \"Si\",\r\n                            \"No\"\r\n                        ),\r\n                        Glosa: ThisRecord.codigoGlosa.Value\r\n                    }\r\n                )                \r\n            )\r\n        );\r\n\r\n        Set(var_ResultadoValidacion,Filter(colCumpleValidacion,Cumple=\"No\"));\r\n        Set(var_ResultadoValidacionFirst,First(var_ResultadoValidacion));\r\n\r\n        //Comprobamos las validaciones \r\n        Refresh(Var_upc_Glosa);\r\n\r\n        //Se obtiene como objeto la informacion de la vigencia por periodo\r\n        Set(var_vigenciaperiodoInfo,First(colvigenciaperiodoInfo));\r\n\r\n        If(\r\n            CountRows(var_ResultadoValidacion)<>0,\r\n            Switch(var_ResultadoValidacionFirst.Codigo,\r\n                \"REQ001\",\r\n                    Set(varErrorMensaje,\r\n                        LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa)),  \r\n                \"REQ099\",\r\n                    Set(varErrorMensaje,\r\n                        LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa)),\r\n                \"REQ008\",\r\n                    Set(varErrorMensaje,\r\n                        Substitute(\r\n                            Substitute(\r\n                                Substitute(\r\n                                    Substitute(\r\n                                        Substitute(\r\n                                            Substitute(\r\n                                                LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa),\r\n                                                \"[[NIVEL]]\",varAlumno.Nivel),\r\n                                            \"[[PERIODO]]\",varAlumno.Periodo),\r\n                                        \"[[CT_VIGENCIA_INICIO]]\",var_vigenciaperiodoInfo.fechaInicio),\r\n                                \"[[CT_VIGENCIA_FIN]]\",var_vigenciaperiodoInfo.fechaFin)\r\n                            ,\"[[CT_NIVEL]]\",var_vigenciaperiodoInfo.confNivel.Value),\r\n                        \"[[CT_PERIODO]]\",var_vigenciaperiodoInfo.periodoCompuesto)\r\n                    ),\r\n                \"REQ040\",\r\n                    Set(\r\n                        varErrorMensaje,\r\n                        Substitute(\r\n                            Substitute(\r\n                                LookUp(\r\n                                    Var_upc_Glosa,\r\n                                    codigoGlosa = var_ResultadoValidacionFirst.Glosa,\r\n                                    mensajeGlosa\r\n                                ),\r\n                                \"[[NIVEL]]\",\r\n                                varAlumno.Nivel\r\n                            ),\r\n                            \"[[PERIODO]]\",\r\n                            varAlumno.Periodo\r\n                        )\r\n                    )        \r\n            );\r\n            Set(\r\n                varModalError,\r\n                true\r\n            )\r\n        );\r\n\r\n        Set(var_modalCargaHome,false);\r\n        If(\r\n            varModalError = false,\r\n            Navigate(ScreenReglamento)\r\n        );\r\n\r\n        Concurrent(\r\n            Set(repetirTimerExtra,false),\r\n            Set(iniciarTimerExtra,false),\r\n            Set(var_modalCargaHome,false)\r\n        ),\r\n        []\r\n\r\n    )\r\n)\r\n"
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Repeat: =repetirTimerExtra
+            Visible: =false
+            X: =756
+            Y: =102
+      - TimerRegular:
+          Control: Timer@2.1.0
+          Properties:
+            AutoStart: =iniciarTimerRegular
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =ColorFade(Self.BorderColor, 70%)
+            DisabledColor: =ColorFade(Self.Fill, 90%)
+            DisabledFill: =ColorFade(Self.Fill, 70%)
+            Duration: =35000
+            Fill: =RGBA(164, 38, 44, 1)
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+            OnTimerEnd: "=Set(var_modalCargaHome, true );\r\nIf(\r\n    iniciarTimerRegular,\r\n    Concurrent(\r\n        Clear(colDetalleMatricula),\r\n        Clear(colDocenteSeccion)\r\n    );\r\n    Refresh(Var_upc_Alumno);\r\n    Set(\r\n        varAlumno,\r\n        LookUp(\r\n            Var_upc_Alumno,\r\n            codigoUsuario = varCodigoUsuario && Nivel=varUsuarioNivel\r\n        )\r\n    );\r\n    Set(\r\n        tblDetalleMatricula,\r\n        Table(ParseJSON(varAlumno.jsonDetalleMatricula))\r\n    );\r\n    Set(\r\n        tblDocenteSeccion,\r\n        Table(ParseJSON(varAlumno.jsonDocenteSeccion))\r\n    );\r\n    Set(\r\n        varAlumnoJson,\r\n        ParseJSON(varAlumno.jsonAlumno)\r\n    );\r\n    ForAll(\r\n        tblDocenteSeccion,\r\n        Collect(\r\n            colDocenteSeccion,\r\n            {\r\n                Id: CountRows(colDocenteSeccion),\r\n                DisplayName: Concatenate(\r\n                    ThisRecord.Value.nombres,\r\n                    \" \",\r\n                    ThisRecord.Value.apellidos\r\n                ),\r\n                codigoPeriodo: ThisRecord.Value.codigoPeriodo,\r\n                nrc: ThisRecord.Value.nrc,\r\n                correoDocente: ThisRecord.Value.correoDocente,\r\n                docentePrincipal: Text( ThisRecord.Value.docentePrincipal),\r\n                usuarioDocente: Text(ThisRecord.Value.usuarioDocente)\r\n            }\r\n        )\r\n    );\r\n    //Detalle de matrícula\r\n    ForAll(\r\n        tblDetalleMatricula,\r\n        Collect(\r\n            colDetalleMatricula,\r\n            {\r\n                Id: CountRows(colDetalleMatricula),\r\n                DisplayName: Concatenate(\r\n                    ThisRecord.Value.MateriaCodigo,\r\n                    ThisRecord.Value.numeroCurso,\r\n                    \" - \",\r\n                    ThisRecord.Value.MateriaDescripcion\r\n                ),\r\n                materia: Text(ThisRecord.Value.MateriaDescripcion),\r\n                nrc: Text(ThisRecord.Value.nrc),\r\n                numeroCurso: Text(ThisRecord.Value.numeroCurso),\r\n                materiaCodigo: Text(ThisRecord.Value.MateriaCodigo),\r\n                codCurso: Concatenate(\r\n                    ThisRecord.Value.MateriaCodigo,\r\n                    ThisRecord.Value.numeroCurso\r\n                ),\r\n                estadoInscripcionCodigo: Text(ThisRecord.Value.estadoInscripcionCodigo),\r\n                partePeriodocodigo:Text(ThisRecord.Value.partePeriodocodigo)\r\n            }\r\n        )\r\n    );\r\n    // ------------------------ VIGENCIAS MODULARES ----------------------------- //\r\n    // OBTENER PARTE PERIODO CÓDIGO DE DETALLE MATRÍCULA\r\n    ClearCollect(\r\n        col_detalleMatricula,\r\n        ForAll(\r\n            tblDetalleMatricula,\r\n            {\r\n                partePeriodocodigo:Text(Value.partePeriodocodigo)\r\n            }\r\n        )\r\n    );\r\n    ClearCollect(\r\n        col_VigenciasModulares,\r\n        {\r\n            //MÓDULO A\r\n            moduloA:If(IsBlank(LookUp(col_detalleMatricula,partePeriodocodigo=TablaConfiguracion.valorModuloA).partePeriodocodigo),\"No\",\"Si\"),\r\n            //MÓDULO B\r\n            moduloB:If(IsBlank(LookUp(col_detalleMatricula,partePeriodocodigo=TablaConfiguracion.valorModuloB).partePeriodocodigo),\"No\",\"Si\"),\r\n            //MÓDULO RE\r\n            modulo1:If(IsBlank(LookUp(col_detalleMatricula,partePeriodocodigo=TablaConfiguracion.valorModuloRE).partePeriodocodigo),\"No\",\"Si\")\r\n        }\r\n    );\r\n\r\n    //Sanciones a aplicar para cursos desde la lista de mantenimientos\r\n    ClearCollect(\r\n        colTiposSancionesTramiteCurso,\r\n        Filter(\r\n            Var_upc_ConfiguracionTramiteSancion,\r\n            codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite \r\n            && activo.Value = TablaConfiguracion.filtroEstadoActivoSancion//\"Si\" \r\n            && (\r\n                codigoTipoSancion.Value = TablaConfiguracion.TipoSancion04 //varTipoSancion04 \r\n            )\r\n        )\r\n    );\r\n    //Todo el registro de la configuración del trámite\r\n    Set(varConfiguracionTramite,\r\n        LookUp(Var_upc_ConfiguracionTramite,And(codigoTramite.Value=var_TramiteRealizar,codigoNivel.Value = varAlumno.Nivel))\r\n    );\r\n\r\n    //Columna codigoConfiguracionTramite desde la configuración del trámite\r\n    Set(var_confTRam,\r\n        LookUp(Var_upc_ConfiguracionTramite,And(codigoTramite.Value=var_TramiteRealizar,codigoNivel.Value = varAlumno.Nivel),codigoConfiguracionTramite)\r\n    );\r\n\r\n    //Tipo de duracion\r\n    Set(varTipoDuracion,\r\n        LookUp(Var_upc_TipoDuracion, codigoTipoDuracion = TablaConfiguracion.codigoTipoDuracion2, nombreTipoDuracion)\r\n    );\r\n    \r\n    //Configuracion actividades\r\n    Refresh(Var_upc_ConfiguracionTramiteActividades);\r\n    ClearCollect(col_ActividadesAD,\r\n        Filter(Var_upc_ConfiguracionTramiteActividades,\r\n            And(codigoConfiguracionTramite.Value = var_confTRam,estado.Value = TablaConfiguracion.codigoEstadoActividad)\r\n        )\r\n    );\r\n    //Obtener actividad de registro\r\n    Set(var_PrimeraActividad,\r\n        LookUp(col_ActividadesAD,orden = TablaConfiguracion.numOrdenPrimeraActividad)\r\n    );\r\n\r\n    //Reglamentos\r\n    //Se filtra el reglamento del tramite seleccionado\r\n    Refresh(Var_upc_Reglamento);\r\n    Set(varReglamento,First(Filter(Var_upc_Reglamento,codigoReglamento = varCodigoReglamento.Value)));\r\n\r\n    //Validaciones informacion en campos de pantalla de registro\r\n    Refresh(Var_upc_Glosa);\r\n    ClearCollect(colGlosasValidacionesRequeridas,\r\n        Filter(Var_upc_Glosa,\r\n            codigoTramite= var_TramiteRealizar\r\n        )\r\n    );\r\n\r\n    //Validaciones\r\n    Refresh(Var_upc_Validacion);\r\n    Refresh(Var_upc_ConfiguracionTramiteVigencia);\r\n\r\n    //Obtenemos la configuracion de vigencia del tramite de la lista configuracion de vigencia REQ001 Vigencia sin periodo y con fecha\r\n    ClearCollect(colVigencia,\r\n        Filter(Var_upc_ConfiguracionTramiteVigencia,\r\n        codigoConfiguracionTramite.Value= Text( var_confTRam) \r\n        && nivel=varAlumno.Nivel\r\n        && codigoModalidad=varAlumno.modalidadEstudio\r\n        && estado.Value= TablaConfiguracion.filtroEstadoVigencia\r\n        && (\r\n            fechaInicio<=Today() && fechaFin>=Today()\r\n        )\r\n    ));\r\n\r\n    //Validar si existen vigencias para el periodo - REQ099 Vigencia por periodo sin fecha\r\n    ClearCollect(colVigenciaPorPeriodo,\r\n        Filter(Var_upc_ConfiguracionTramiteVigencia,\r\n        codigoConfiguracionTramite.Value=Text( var_confTRam) \r\n        && nivel=varAlumno.Nivel\r\n        && codigoModalidad=varAlumno.modalidadEstudio\r\n        && periodoCompuesto=varAlumno.Periodo\r\n    ));\r\n\r\n    //Obtenemos la configuracion de vigencia del tramite de la lista configuracion de vigencia Regular REQ008 Vigencia por periodo y con fecha\r\n    //Regular o Modular(AC - 01- 10-20)\r\n    ClearCollect(colvigenciaperiodoRegular,\r\n        Filter(Var_upc_ConfiguracionTramiteVigencia,\r\n        codigoConfiguracionTramite.Value=Text( var_confTRam) \r\n        && nivel=varAlumno.Nivel\r\n        && codigoModalidad=varAlumno.modalidadEstudio\r\n        && periodoCompuesto=varAlumno.Periodo\r\n        && estado.Value=TablaConfiguracion.filtroEstadoVigencia \r\n        && (\r\n            fechaInicio<=Today() && fechaFin>=Today()\r\n        )\r\n    ));\r\n\r\n    //Obtenemos la configuracion de vigencia del tramite de la lista configuracion de vigencia Regular por periodo\r\n    ClearCollect(colvigenciaperiodoInfo,\r\n    Filter(Var_upc_ConfiguracionTramiteVigencia,\r\n        codigoConfiguracionTramite.Value= Text(var_confTRam) \r\n        && nivel=varAlumno.Nivel \r\n        && codigoModalidad=varAlumno.modalidadEstudio \r\n        && estado.Value=TablaConfiguracion.filtroEstadoVigencia\r\n        //&& periodoCompuesto=varAlumno.Periodo\r\n    ));\r\n\r\n    //Validación de vigencia modular\r\n    //Se busca alguna vigencia configurada con modulo A\r\n    If(\r\n        First(col_VigenciasModulares).moduloA = \"Si\",\r\n        Set(\r\n            var_vigenciaA,\r\n            If(\r\n                !IsBlank(\r\n                    LookUp(\r\n                        Var_upc_ConfiguracionTramiteVigencia,\r\n                        codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite \r\n                        && nivel = varAlumno.Nivel \r\n                        && flagModular = TablaConfiguracion.filtroVigenciaModular\r\n                        && codigoModulo = TablaConfiguracion.valorModuloA\r\n                        && codigoModalidad = varAlumno.modalidadEstudio\r\n                        && estado.Value = TablaConfiguracion.filtroEstadoVigencia\r\n                        && (\r\n                            fechaInicio <= Today() && fechaFin >= Today()\r\n                        )\r\n                    )\r\n                ),\r\n                \"Si\",\r\n                \"No\"\r\n            )\r\n        ),\r\n        Set(\r\n            var_vigenciaA,\r\n            \"No\"\r\n        )\r\n    );\r\n    //Se busca alguna vigencia configurada con modulo B\r\n    If(\r\n        First(col_VigenciasModulares).moduloB = \"Si\",\r\n        Set(\r\n            var_vigenciaB,\r\n            If(\r\n                !IsBlank(\r\n                    LookUp(\r\n                        Var_upc_ConfiguracionTramiteVigencia,\r\n                        codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite \r\n                        && nivel = varAlumno.Nivel \r\n                        && flagModular = TablaConfiguracion.filtroVigenciaModular\r\n                        && codigoModulo = TablaConfiguracion.valorModuloB\r\n                        && codigoModalidad = varAlumno.modalidadEstudio\r\n                        && estado.Value = TablaConfiguracion.filtroEstadoVigencia\r\n                        && (\r\n                            fechaInicio <= Today() && fechaFin >= Today()\r\n                        )\r\n                    )\r\n                ),\r\n                \"Si\",\r\n                \"No\"\r\n            )\r\n        ),\r\n        Set(\r\n            var_vigenciaB,\r\n            \"No\"\r\n        )\r\n    );\r\n    //Se busca alguna vigencia configurada con modulo 1\r\n    If(\r\n        First(col_VigenciasModulares).modulo1 = \"Si\",\r\n        Set(\r\n            var_vigencia1,\r\n            If(\r\n                !IsBlank(\r\n                    LookUp(\r\n                        Var_upc_ConfiguracionTramiteVigencia,\r\n                        codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite \r\n                        && nivel = varAlumno.Nivel \r\n                        && flagModular = TablaConfiguracion.filtroVigenciaModular\r\n                        && codigoModulo = TablaConfiguracion.valorModuloRE\r\n                        && codigoModalidad = varAlumno.modalidadEstudio\r\n                        && estado.Value = TablaConfiguracion.filtroEstadoVigencia\r\n                        && (\r\n                            fechaInicio <= Today() && fechaFin >= Today()\r\n                        )\r\n                    )\r\n                ),\r\n                \"Si\",\r\n                \"No\"\r\n            )\r\n        ),\r\n        Set(\r\n            var_vigencia1,\r\n            \"No\"\r\n        )\r\n    );\r\n\r\n    Clear(colVigenciasActivas);\r\n    If(varAlumno.modalidadEstudio = TablaConfiguracion.valorModalidadEPE,\r\n        \r\n        If(var_vigenciaA = \"Si\",\r\n            Collect(colVigenciasActivas,\r\n                {\r\n                    modulo: TablaConfiguracion.valorModuloA,\r\n                    vigente: \"Si\"\r\n                }\r\n            )\r\n        );\r\n        If(var_vigenciaB = \"Si\",\r\n        Collect(colVigenciasActivas,\r\n                {\r\n                    modulo: TablaConfiguracion.valorModuloB,\r\n                    vigente: \"Si\"\r\n                }\r\n            )\r\n        );\r\n        If(var_vigencia1 = \"Si\",\r\n            Collect(colVigenciasActivas,\r\n                {\r\n                    modulo: TablaConfiguracion.valorModuloRE,\r\n                    vigente: \"Si\"\r\n                }\r\n            )\r\n        )\r\n    );\r\n\r\n    //Obtenemos la coleccion de validaciones - Pantalla 1 \r\n    ClearCollect(colValidaciones,\r\n        Filter(Var_upc_Validacion,\r\n            estado.Value = TablaConfiguracion.filtroEstadoValidacion\r\n            && codigoConfiguracionTramite.Value=var_confTRam \r\n            && (codigoRequisito.Value = If(\r\n                    varUsuarioRol = TablaConfiguracion.RolAlumno,\"REQ001\",\"\") || //REQ001 Vigencia sin periodo y con fecha  \r\n                //codigoRequisito.Value = \"REQ008\" || //REQ008 Vigencia por periodo y con fecha\r\n                codigoRequisito.Value = If(\r\n                    varUsuarioRol = TablaConfiguracion.RolAlumno,\"REQ099\",\"\") || //REQ099 Vigencia por periodo sin fecha\r\n                codigoRequisito.Value = If(\r\n                    varUsuarioRol = TablaConfiguracion.RolAlumno,\r\n                    If(\r\n                        varAlumno.modalidadEstudio = TablaConfiguracion.valorModalidadEPE,\r\n                        \"REQ040\",\r\n                        varAlumno.modalidadEstudio = TablaConfiguracion.valorModalidadPregrado,\r\n                        \"REQ008\"\r\n                    ),\r\n                    \"\"\r\n                )            \r\n            )\r\n        )\r\n    );\r\n\r\n    //Validación de los requisitos\r\n    Set(varModalError,false);\r\n    Clear(colCumpleValidacion);\r\n\r\n    ForAll(Sort(colValidaciones,orden,SortOrder.Ascending),\r\n        Switch(ThisRecord.codigoRequisito.Value,    \r\n            \"REQ001\", //REQ001 Vigencia sin periodo y con fecha\r\n            Collect(colCumpleValidacion,{\r\n                Codigo:ThisRecord.codigoRequisito.Value,\r\n                Cumple:If(CountRows(colVigencia)>0,\"Si\",\"No\"), \r\n                Glosa:ThisRecord.codigoGlosa.Value}),\r\n            \"REQ099\", //REQ099 Vigencia por periodo sin fecha\r\n            Collect(colCumpleValidacion,{\r\n                Codigo:ThisRecord.codigoRequisito.Value,\r\n                Cumple:If(CountRows(colVigenciaPorPeriodo)>0,\"Si\",\"No\"),\r\n                Glosa:ThisRecord.codigoGlosa.Value}),            \r\n            \"REQ008\", //REQ008 Vigencia por periodo y con fecha\r\n            Collect(colCumpleValidacion,{\r\n                Codigo:ThisRecord.codigoRequisito.Value,\r\n                Cumple:If(CountRows(colvigenciaperiodoRegular)>0,\"Si\",\"No\"),\r\n                Glosa:ThisRecord.codigoGlosa.Value}),\r\n            \"REQ040\",\r\n            Collect(\r\n                colCumpleValidacion,\r\n                {\r\n                    Codigo: ThisRecord.codigoRequisito.Value,\r\n                    Cumple: If(\r\n                        Or(\r\n                            var_vigenciaA = \"Si\",\r\n                            var_vigenciaB = \"Si\",\r\n                            var_vigencia1 = \"Si\"\r\n                        ),\r\n                        \"Si\",\r\n                        \"No\"\r\n                    ),\r\n                    Glosa: ThisRecord.codigoGlosa.Value\r\n                }\r\n            )                \r\n        )\r\n    );\r\n\r\n    Set(var_ResultadoValidacion,Filter(colCumpleValidacion,Cumple=\"No\"));\r\n    Set(var_ResultadoValidacionFirst,First(var_ResultadoValidacion));\r\n\r\n    //Comprobamos las validaciones \r\n    Refresh(Var_upc_Glosa);\r\n\r\n    //Se obtiene como objeto la informacion de la vigencia por periodo\r\n    Set(var_vigenciaperiodoInfo,First(colvigenciaperiodoInfo));\r\n\r\n    If(\r\n        CountRows(var_ResultadoValidacion)<>0,\r\n        Switch(var_ResultadoValidacionFirst.Codigo,\r\n            \"REQ001\",\r\n                Set(varErrorMensaje,\r\n                    LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa)),  \r\n            \"REQ099\",\r\n                Set(varErrorMensaje,\r\n                    LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa)),\r\n            \"REQ008\",\r\n                Set(varErrorMensaje,\r\n                    Substitute(\r\n                        Substitute(\r\n                            Substitute(\r\n                                Substitute(\r\n                                    Substitute(\r\n                                        Substitute(\r\n                                            LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa),\r\n                                            \"[[NIVEL]]\",varAlumno.Nivel),\r\n                                        \"[[PERIODO]]\",varAlumno.Periodo),\r\n                                    \"[[CT_VIGENCIA_INICIO]]\",var_vigenciaperiodoInfo.fechaInicio),\r\n                            \"[[CT_VIGENCIA_FIN]]\",var_vigenciaperiodoInfo.fechaFin)\r\n                        ,\"[[CT_NIVEL]]\",var_vigenciaperiodoInfo.confNivel.Value),\r\n                    \"[[CT_PERIODO]]\",var_vigenciaperiodoInfo.periodoCompuesto)\r\n                ),\r\n            \"REQ040\",\r\n                Set(\r\n                    varErrorMensaje,\r\n                    Substitute(\r\n                        Substitute(\r\n                            LookUp(\r\n                                Var_upc_Glosa,\r\n                                codigoGlosa = var_ResultadoValidacionFirst.Glosa,\r\n                                mensajeGlosa\r\n                            ),\r\n                            \"[[NIVEL]]\",\r\n                            varAlumno.Nivel\r\n                        ),\r\n                        \"[[PERIODO]]\",\r\n                        varAlumno.Periodo\r\n                    )\r\n                )        \r\n        );\r\n        Set(\r\n            varModalError,\r\n            true\r\n        )\r\n    );\r\n    Concurrent(\r\n        Set(repetirTimerRegular,false),\r\n        Set(iniciarTimerRegular,false),\r\n        Set(var_modalCargaHome,false)\r\n    );\r\n    If(\r\n        varModalError = false,\r\n        Navigate(ScreenReglamento)\r\n    )\r\n    \r\n\r\n)"
+            OnTimerStart: =
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Visible: =false
+            X: =545
+            Y: =102

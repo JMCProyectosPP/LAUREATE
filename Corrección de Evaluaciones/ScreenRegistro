@@ -1,0 +1,1880 @@
+Screens:
+  ScreenRegistro:
+    Properties:
+      Fill: =RGBA(255,255,255,1)
+      LoadingSpinnerColor: =RGBA(164, 38, 44, 1)
+      OnVisible: |-
+        =
+        Refresh(Var_upc_ReglamentoReglas);
+        Refresh(Var_upc_Regla);
+        Refresh(Var_upc_TipoReclamo);
+        Refresh(Var_upc_SubTipoReclamo)
+    Children:
+      - btnCancelar:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =varColorRojo
+            BorderThickness: =1
+            Color: =varColorRojo
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =RGBA(0, 0, 0, 0)
+            Font: =Font.'Open Sans Condensed'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+            OnSelect: |
+              =Set(varModalError,false);
+              Reset(dpAsignatura);
+              Reset(dpProfesor);
+              Reset(dpTipoEvaliacion);
+              Reset(dpTipoReclamo);
+              Clear(colPreguntas);
+              Clear(colPreguntasProblemas);
+              Clear(colTIpoEvaluacionCorreccion);
+              Navigate(ScreenImportante)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Text: ="CANCELAR"
+            Width: =225
+            X: =881
+            Y: =714
+      - btnEnviarSolicitud:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisplayMode: =If(varHabilitarEnviarSol && varTipoEvaluacionTieneNota,DisplayMode.Edit,DisplayMode.Disabled)
+            Fill: =varColorRojo
+            Font: =Font.'Open Sans Condensed'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+            OnSelect: "=Set(\n    varValidaContinua,\n    true\n);\nSet(\n    varValidaCampoRegistro,\n    false\n);\n\n//empieza validaciones\nIf(\n    varValidaContinua,\n    If(\n        IsBlank(dpTipoReclamo.Selected),\n        Set(\n            varValidaContinua,\n            false\n        );\n        Set(\n            varErrorMensaje,\n            LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo1,mensajeGlosa)\n        );\n        Set(\n            varModalError,\n            true\n        ),\n        Set(\n            varValidaContinua,\n            true\n        )\n    )\n);\n\nIf(\n    varValidaContinua,\n    If(\n        dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo1, //ERROR DE SUMA\n        If(\n            IsBlank(txtErrorSuma.Text),\n            Set(\n                varErrorMensaje,\n                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo2,mensajeGlosa)\n            );\n            Set(\n                varModalError,\n                true\n            );\n            Set(\n                varValidaContinua,\n                false\n            );\n            Set(\n                varValidaCampoRegistro,\n                false\n            );\n            \n            ,            \n            If(\n                CountRows(Filter(colCaracteresEspeciales As t,  t.Value in txtErrorSuma.Text)) > 0,\n                Set(\n                    varErrorMensaje,\n                    LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo3,mensajeGlosa)\n                );\n                Set(\n                varModalError,\n                    true\n                );\n                Set(\n                    varValidaContinua,\n                    false\n                );\n                Set(\n                    varValidaCampoRegistro,\n                    false\n                );\n                \n                ,                          \n                If(\n                    !(Value(txtErrorSuma.Text) > TablaConfiguracion.valorNotaMin && Value(txtErrorSuma.Text) <= TablaConfiguracion.valorNotaMax),                    \n                    Set(\n                        varErrorMensaje,\n                        LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo4,mensajeGlosa)\n                    );\n                    Set(\n                        varModalError,\n                        true\n                    );\n                    Set(\n                        varValidaContinua,\n                        false\n                    );\n                    Set(\n                        varValidaCampoRegistro,\n                        false\n                    );\n                    \n                    ,\n                    Set(\n                        varValidaContinua,\n                        true\n                    );\n                    Set(\n                        varValidaCampoRegistro,\n                        true\n                    )                        \n                )\n\n            )\n        )\n    )\n);\n\nIf(\n    varValidaContinua,\n    If(\n        dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo2, //ERROR DE DIGITACIÓN\n        If(\n            IsBlank(txtErrorDigitacion.Text),\n            Set(\n                varErrorMensaje,\n                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo5,mensajeGlosa)\n            );\n            Set(\n                varModalError,\n                true\n            ),\n            If(\n                CountRows(Filter(colCaracteresEspeciales As t,  t.Value in txtErrorDigitacion.Text)) > 0,\n                Set(\n                    varErrorMensaje,\n                    LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo3,mensajeGlosa)\n                );\n                Set(\n                    varModalError,\n                    true\n                ),\n                If(\n                    !(Value(txtErrorDigitacion.Text) > TablaConfiguracion.valorNotaMin && Value(txtErrorDigitacion.Text) <= TablaConfiguracion.valorNotaMax),\n                    Set(\n                        varErrorMensaje,\n                        LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo4,mensajeGlosa)\n                    );\n                    Set(\n                        varModalError,\n                        true\n                    )\n                    ,\n                    Set(\n                        varValidaCampoRegistro,\n                        true\n                    )\n                )\n            )\n        )\n    )\n);\n\n\nIf(\n    varValidaContinua,\n    If(\n        dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo3, //NO SE CONSIDERÓ EL TOTAL DE RESPUESTAS\n        If(\n            CountRows(colPreguntas) = 0,\n            Set(\n                varErrorMensaje,\n                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo6,mensajeGlosa)\n            );\n            Set(\n                varModalError,\n                true\n            ),\n            Set(\n                varValidaCampoRegistro,\n                true\n            )\n        )\n    )\n);\n\nIf(\n    varValidaContinua,\n    If(\n        dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo4, //PREGUNTA NO CORREGIDA\n        If(\n            CountRows(colPreguntas) = 0,\n            Set(\n                varErrorMensaje,\n                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo6,mensajeGlosa)                \n            );\n            Set(\n                varModalError,\n                true\n            ),\n            Set(\n                varValidaCampoRegistro,\n                true\n            )\n        )\n    )\n);\n\nIf(\n    varValidaContinua,\n    If(\n        dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo5, //ERROR EN LA CLAVE DE RESPUESTA\n        If(\n            CountRows(colPreguntas) = 0,\n            Set(\n                varErrorMensaje,\n                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo6,mensajeGlosa)\n            );\n            Set(\n                varModalError,\n                true\n            ),\n            Set(\n                varValidaCampoRegistro,\n                true\n            )\n        )\n    )\n);\n\nIf(\n    varValidaContinua,\n    If(\n        dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo6, //PROBLEMAS CON EL BLACKBOARD\n        If(\n            CountRows(colPreguntasProblemas) = 0,\n            Set(\n                varErrorMensaje,\n                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo7,mensajeGlosa)\n            );\n            Set(\n                varModalError,\n                true\n            ),\n            Set(\n                varValidaCampoRegistro,\n                true\n            )\n        )\n    )\n);\n\nIf(\n    varValidaContinua,\n    If(\n        dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo7, //NO SE CONSIDERÓ MI NOMBRE EN LA EVALUACIÓN O TRABAJO\n        If(\n            IsBlank(txtNoConsidero1.Text) || IsBlank(txtNoConsidero2.Text),\n            Set(\n                varErrorMensaje,\n                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo13,mensajeGlosa)\n            );\n            Set(\n                varModalError,\n                true\n            ),\n            If(\n                CountRows(Filter(colCaracteresEspecialesAux As t,  t.Value in txtNoConsidero2.Text)) > 0,\n                Set(\n                    varErrorMensaje,\n                    LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo8,mensajeGlosa)\n                );\n                Set(\n                    varModalError,\n                    true\n                ),\n\n                If(\n                    !(Value(txtNoConsidero1.Text) > TablaConfiguracion.valorNotaMin && Value(txtNoConsidero1.Text) <= TablaConfiguracion.valorNotaMax),\n                    Set(\n                        varErrorMensaje,\n                        LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo4,mensajeGlosa)                        \n                    );\n                    Set(\n                        varModalError,\n                        true\n                    )\n                    ,\n                    Set(\n                        varValidaCampoRegistro,\n                        true\n                    )\n                )                \n            )\n        )\n    )\n);\n\nIf(\n    varValidaContinua,\n    If(\n        dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo8, //ERROR EN ASIGNACIÓN DE NOTA (NR)\n        Set(\n            varValidaCampoRegistro,\n            true\n        )\n    )\n);\n\nIf(\n    varValidaCampoRegistro,\n    Set(\n        varModalConfirmacion,\n        true\n    )\n    \n)"
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Text: ="ENVIAR SOLICITUD"
+            Visible: '=dpTipoReclamo.Selected.nombreTipoReclamo <> "" '
+            Width: =225
+            X: =1121
+            Y: =714
+      - Label9_2:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Semibold
+            Size: =18
+            Text: ="DETALLE DE CORRECCIÓN DE EVALUACIÓN"
+            Width: =508
+            X: =470
+            Y: =134
+      - Rectangle12_7:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =varColorRojo
+            Height: =30
+            Width: =8
+            X: =450
+            Y: =139
+      - lblIngreseInfo:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Height: =28
+            Text: ="INGRESE INFORMACIÓN PARA EL TIPO DE RECLAMO - " &  dpTipoReclamo.Selected.nombreTipoReclamo
+            Width: =876
+            X: =450
+            Y: =419
+      - Rectangle12_8:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =varColorRojo
+            Height: =30
+            Width: =8
+            X: =396
+            Y: =407
+      - Label5_11:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =varColorRojo
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Size: =14
+            Text: ="/ CORRECCIÓN DE EVALUACIONES /"
+            Width: =265
+            X: =166
+            Y: =110
+      - Label5_12:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Height: =60
+            Size: =18
+            Text: ="CORRECCIÓN DE EVALUACIONES CONTINUAS"
+            Width: =291
+            X: =103
+            Y: =160
+      - Rectangle12_6:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =varColorRojo
+            Height: =50
+            Width: =8
+            X: =93
+            Y: =165
+      - Label5_10:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(116, 116, 116, 1)
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Bold
+            Size: =14
+            Text: ="TRÁMITES"
+            Width: =93
+            X: =86
+            Y: =110
+      - ContainerContenidoScreen_1:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            Fill: =varColorFondo
+            Height: =233
+            RadiusBottomLeft: =10
+            RadiusBottomRight: =10
+            RadiusTopLeft: =10
+            RadiusTopRight: =10
+            Width: =894
+            X: =450
+            Y: =174
+          Children:
+            - lblAsignatura:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Text: ="ASIGNATURA *"
+                  Width: =401
+                  X: =22
+                  Y: =6
+            - lblNRC:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  PaddingLeft: =0
+                  Text: ="NRC *"
+                  Width: =100
+                  X: =440
+                  Y: =6
+            - lblProfesor:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  Text: ="PROFESOR *"
+                  Width: =401
+                  X: =22
+                  Y: =84
+            - lblTipoEvaluacion:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  PaddingLeft: =0
+                  Text: ="TIPO DE EVALUACIÓN *"
+                  Width: =324
+                  X: =440
+                  Y: =84
+            - lblNota:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  PaddingLeft: =0
+                  Text: ="NOTA *"
+                  Width: =100
+                  X: =779
+                  Y: =84
+            - dpAsignatura:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                  AllowEmptySelection: =true
+                  BorderColor: =Self.ChevronBackground
+                  ChevronBackground: =varColorAzulFigma2
+                  ChevronFill: =RGBA(255, 255, 255, 1)
+                  ChevronHoverBackground: =//ColorFade(RGBA(164; 38; 44; 1); -20%)
+                  ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                  Default: =
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =varColorAzulFigma2
+                  Items: |-
+                    =If(varAlumno.modalidadEstudio = TablaConfiguracion.valorModalidadEPE,
+                        Filter(colDetalleMatricula, partePeriodocodigo in colVigenciasActivas.modulo),
+                        colDetalleMatricula
+                    )
+                  Items.Value: =DisplayName
+                  OnChange: "=//limpiar seccion de reclamo\nReset(dpTipoReclamo);    \nReset(txtErrorSuma);\nReset(txtErrorSuma);\nReset(txtErrorDigitacion);\nReset(dpTipoEvaliacion);\nConcurrent(\n    Clear(colPreguntas),\n    Reset(txtPreguntaCorregidaParcialmente)\n);\nConcurrent(\n    Clear(colPreguntas),\n    Reset(txtPreguntaNoCorregida)\n);\nConcurrent(\n    Clear(colPreguntas),\n    Reset(txtPreguntaNoCorregida)\n);\nConcurrent(\n    Reset(dropSubTipoReclamo),\n    Reset(dropActividad),\n    Clear(colPreguntasProblemas)\n);\nConcurrent(\n    Reset(txtNoConsidero1),\n    Reset(txtNoConsidero2)\n);    \n\nSet(var_modalCargaHome,true);\nSet(varModalError, false);\n//Deshabilita el botón ENVIAR SOLICITUD\nSet(\n    varHabilitarEnviarSol,\n    false\n);\n//Deshabilita la lista de tipo de evaluación\nSet(\n    varHabilitarTipoEvaluacionTipoReclamo,\n    false\n);\n//Reiniciamos la coleccion de tipos de evaluacion\nClear(colTIpoEvaluacionCorreccion);\nClear(colTipoEvaluacionConNota);\nReset(dpTipoEvaliacion);\nSet(notaEvaluacion,Blank());\n//Si ha seleccionado un valor diferente al vacío\nIf(IsBlank(dpAsignatura.Selected.DisplayName),\n\n    Clear(colTipoEvaluacionSegunCurso)\n\n    ,//Caso contrario\n\n    //Colección que obtiene los tipos de evaluación inactivos para corrección de evaluaciones\n    Set(colTiposEvaluacionCorreccion,Filter(Var_upc_ConfiguracionTramiteTipoEvaluacion, Estado.Value= \"Activo\" && codigoConfiguracionTramite.Value = varConfiguracionTramite.codigoConfiguracionTramite));\n                    \n    //Colección que obtiene todas las evaluaciones para el curso seleccionado\n    Clear(colTipoEvaluacionSegunCurso);\n    Collect(colTipoEvaluacionSegunCurso,\n        Filter(colAvanceNotas, \n            CodCurso= dpAsignatura.Selected.codCurso\n        )   \n    );\n    //Se filtran las evaluaciones para considerar solo las permitidas a corrección de evaluaciones\n    \n    ForAll(colTipoEvaluacionSegunCurso As evalCurso,\n        Collect(colTIpoEvaluacionCorreccion,\n            If( CountRows(Filter(colTiposEvaluacionCorreccion, codigoTipoPrueba.Value = Left(evalCurso.CodTipoPrueba,2))) > 0 ,\n                {\n                    CodCurso:evalCurso.CodCurso,\n                    CodTipoPrueba:evalCurso.CodTipoPrueba,\n                    DesCurso:evalCurso.DescCurso,\n                    DisplayName:evalCurso.DisplayName,\n                    Id:evalCurso.Id,\n                    Nota:evalCurso.Nota\n                }  \n            )\n        )\n    );\n\n    //REG031-Validar Sancion Disciplinaria por Curso\n    ClearCollect(\n        col_detSancionesWS,\n        ForAll(\n            Table(ParseJSON(varAlumno.jsonSanciones).listaSanciones),\n            {\n                codigoPeriodoExpedienteColSanciones: Text(Value.codigoPeriodoExpediente),\n                codigoMateriaColSanciones: Text(Value.codigoMateria),\n                numeroCursoColSanciones: Text(Value.numeroCurso),\n                codigoTipoSancionColSanciones: Text(Value.codigoTipoSancion),\n                Concat:Text(Value.codigoMateria)&Text(Value.numeroCurso)\n            }\n        )\n    );\n\n    Clear(col_detSancionesFiltradas);\n    ForAll(col_detSancionesWS As sancionAlumno,\n        If(sancionAlumno.codigoTipoSancionColSanciones in Distinct(colTiposSancionesTramiteCurso, codigoTipoSancion.Value) && sancionAlumno.codigoMateriaColSanciones = dpAsignatura.Selected.materiaCodigo &&\n            sancionAlumno.numeroCursoColSanciones = dpAsignatura.Selected.numeroCurso ,                \n            Collect(col_detSancionesFiltradas,\n                sancionAlumno\n            )\n        )            \n    );\n\n    //REG032-Validar Posible Sancion Disciplinaria por Curso\n    ClearCollect(\n        col_detPosiblesSanciones,\n        ForAll(\n            Table(ParseJSON(varAlumno.jsonPosibleSancion).listaPosibleSancion),\n            {\n                codigoPeriodoExpedienteColPosibleSanciones: Text(Value.codigoPeriodoExpediente),\n                codigoMateriaColPosibleSanciones: Text(Value.codigoMateria),\n                numeroCursoColPosibleSanciones: Text(Value.numeroCurso),\n                Concat:Text(Value.codigoMateria)&Text(Value.numeroCurso)\n            }\n        )\n    );\n    ClearCollect(\n        col_detPosiblesSancionesFiltradas,\n        Filter(\n            col_detPosiblesSanciones,\n            Text(codigoPeriodoExpedienteColPosibleSanciones) = Text(varAlumno.Periodo),\n            codigoMateriaColPosibleSanciones = dpAsignatura.Selected.materiaCodigo,\n            numeroCursoColPosibleSanciones = dpAsignatura.Selected.numeroCurso\n        )\n    );\n\n\n    //Obtener valores de reglas ---------------------------------\n    Set(var_Reglamento,LookUp(Var_upc_ConfiguracionTramite,codigoConfiguracionTramite=var_confTRam));\n\n    //Actualizamos la lista de reglamento Reglas \n    Refresh(Var_upc_ReglamentoReglas);\n\n    //valores de evaluacion\n\n    //Establecemos la colección de reglas a validar\n    ClearCollect(colReglamentos,\n        Filter(Var_upc_ReglamentoReglas,\n            codigoReglamento.Value=var_Reglamento.codigoReglamento.Value\n            && estado.Value= TablaConfiguracion.filtroEstadoRegla\n            && (codigoRegla.Value=\"REG002\"\n                || codigoRegla.Value=\"REG031\"\n                || codigoRegla.Value=\"REG032\"\n            )\n        ) \n    );\n\n    //Limpiamos la colección de cumplimientos de reglas \n    Clear(colCumpleRegla);\n\n    //Recorremos la colección de reglamentos por regla \n    //luego recorremos por cada tipo de evaluación \n    \n    //REG031\n    Set(\n        valRegla2,\n        CountRows(col_detSancionesFiltradas)\n    );\n    //REG032\n    Set(\n        valRegla3,\n        CountRows(col_detPosiblesSancionesFiltradas)\n    );\n    \n    ForAll(\n        colReglamentos,\n        Switch(\n            ThisRecord.codigoRegla.Value,\n            //regla1\n            \"REG002\",\n            Switch(\n                ThisRecord.codigoTipoEvaluacion.Value,\n                \"TIEV001\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            Text(dpAsignatura.Selected.estadoInscripcionCodigo) = Text(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV002\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            Value(dpAsignatura.Selected.estadoInscripcionCodigo) > Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV003\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            Value(dpAsignatura.Selected.estadoInscripcionCodigo) >= Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV004\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            Value(dpAsignatura.Selected.estadoInscripcionCodigo) < Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV005\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            Value(dpAsignatura.Selected.estadoInscripcionCodigo) <= Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV006\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            Value(dpAsignatura.Selected.estadoInscripcionCodigo) <> Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                )\n            ),\n            //regla2\n            \"REG031\",\n            Switch(\n                ThisRecord.codigoTipoEvaluacion.Value,\n                \"TIEV001\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla2 = Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV002\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla2 > Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV003\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla2 >= Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV004\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla2 < Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV005\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla2 <= Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV006\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla2 <> Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                )\n            ),\n            //regla3\n            \"REG032\",\n            Switch(\n                ThisRecord.codigoTipoEvaluacion.Value,\n                \"TIEV001\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla3 = Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV002\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla3 > Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV003\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla3 >= Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV004\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla3 < Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV005\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla3 <= Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                ),\n                \"TIEV006\",\n                Collect(\n                    colCumpleRegla,\n                    {\n                        Codigo: ThisRecord.codigoRegla.Value,\n                        Cumple: If(\n                            valRegla3 <> Value(ThisRecord.valor),\n                            \"No\",\n                            \"Si\"\n                        ),\n                        Glosa: ThisRecord.codigoGlosa.Value,\n                        Valor: ThisRecord.valor\n                    }\n                )\n            )\n        )\n    );\n\n    //Creamos una variable para filtrar solo las que no cumplieron la Regla \n    Set(var_ResultadoRegla,Filter(colCumpleRegla,Cumple=\"No\"));\n    //tomamos el primer valor \n    Set(var_ResultadoReglaFirst,First(var_ResultadoRegla));\n\n    //refrescamos la lista de glosas \n    Refresh(Var_upc_Glosa);\n\n    //Aplicamos el resultado de las validaciones y las reglas -------------------\n    If(  \n        //comprobamos que la  variable contenga valores \n        CountRows(var_ResultadoRegla)<>0,\n        Switch(var_ResultadoReglaFirst.Codigo,//por cada caso evaluamos como se va a presentar la glosa        \n                \"REG002\",\n                    Set(varErrorMensaje,\n                        LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoReglaFirst.Glosa,mensajeGlosa)\n                    ),\n                \"REG031\",\n                    Set(varErrorMensaje,\n                        LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoReglaFirst.Glosa,mensajeGlosa)\n                    ),\n                \"REG032\",\n                    Set(varErrorMensaje,\n                        LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoReglaFirst.Glosa,mensajeGlosa)\n                    )\n        );\n        Set(varModalError,true)\n    );\n\n    Collect(colTipoEvaluacionConNota,\n        Filter(colAvanceNotas, CodCurso= dpAsignatura.Selected.codCurso, !IsBlank(Nota))\n    );\n    Set(\n        varCantidadEvaluacionesConNota,\n        CountRows(colTipoEvaluacionConNota)\n    );\n\n    //Validacion de solicitud de correccion de evaluaciones pendientes - REQ010\n    //PARA REQ021\n    Refresh(Var_upc_Solicitud);\n    Refresh(Var_upc_CorreccionEvaluacion);\n    ClearCollect(\n        col_Solicitud,\n        Filter(\n            Var_upc_Solicitud,                \n            codigoSolicitud = TablaConfiguracion.codigoSolicitud,\n            codigoUsuario = varAlumno.codigoUsuario\n            && nivelAlumno = varAlumno.Nivel \n            && codigoPeriodo = varAlumno.Periodo \n            && estadoSolicitud = TablaConfiguracion.estadoSolEnProceso\n        )\n    );    \n    Clear(colDetalleSolicitudes);\n    ForAll(\n        col_Solicitud As sol,\n        Collect(\n            colDetalleSolicitudes,\n            Filter(\n                Var_upc_CorreccionEvaluacion,\n                idSolicitud = sol.ID\n            )\n        )\n    );\n\n    ClearCollect(\n        col_ExisteSolCOEVProceso,        \n        ForAll(\n            col_Solicitud As colSol,\n            If (CountRows( Filter(            \n                        //Var_upc_CorreccionEvaluacion;\n                        //idSolicitud = Value(colSol.ID);\n                        colDetalleSolicitudes,\n                        idSolicitud = colSol.ID,\n                        nrc = Text(lblNRCVal.Text),\n                        codigoAsignatura = Text(dpAsignatura.Selected.materiaCodigo),\n                        numeroCurso = Text(dpAsignatura.Selected.numeroCurso)\n                    )) > 0,\n                    {\n                        solID: colSol.ID,\n                        nombreTramite: colSol.nombreTramite,\n                        nivel: colSol.nivelAlumno,\n                        periodo: colSol.codigoPeriodo\n                    }\n            )\n        )        \n    );\n\n    //Validaciones\n    Refresh(Var_upc_Validacion);\n    Refresh(Var_upc_ConfiguracionTramiteVigencia);\n\n    //Obtenemos la coleccion de validaciones - Pantalla Registro\n    ClearCollect(colValidaciones,\n        Filter(Var_upc_Validacion,\n            estado.Value=TablaConfiguracion.filtroEstadoValidacion\n            && codigoConfiguracionTramite.Value=var_confTRam \n            && ( \n                codigoRequisito.Value = \"REQ103\" || codigoRequisito.Value = \"REQ010\" || codigoRequisito.Value = \"REQ014\" \n            )\n        )\n    );\n\n    //Validación de los requisitos\n    Clear(colCumpleValidacion);\n\n    ForAll(Sort(colValidaciones,orden,SortOrder.Ascending),\n        Switch(ThisRecord.codigoRequisito.Value,\n        \"REQ103\", //Validar notas de tipo de evaluación en asignatura seleccionada - REQ103\n        Collect(colCumpleValidacion,{\n            Codigo:ThisRecord.codigoRequisito.Value,\n            Cumple:If(varCantidadEvaluacionesConNota>0,\"Si\",\"No\"), \n            Glosa:ThisRecord.codigoGlosa.Value}),\n        \"REQ010\", //Validacion de solicitud de correcion de evaluaciones pendientes - REQ010\n        Collect(colCumpleValidacion,{\n            Codigo:ThisRecord.codigoRequisito.Value,\n            Cumple:If(IsBlank(col_ExisteSolCOEVProceso) || CountRows(col_ExisteSolCOEVProceso) = 0,\"Si\",\"No\"),\n            Glosa:ThisRecord.codigoGlosa.Value})\n        )\n    );\n\n    Set(var_ResultadoValidacion,Filter(colCumpleValidacion,Cumple=\"No\"));\n    Set(var_ResultadoValidacionFirst,First(var_ResultadoValidacion));\n\n    //Comprobamos las validaciones \n    Refresh(Var_upc_Glosa);\n\n    If(\n        CountRows(var_ResultadoValidacion) <> 0 && CountRows(var_ResultadoRegla) = 0,\n        Switch(var_ResultadoValidacionFirst.Codigo,\n        \"REQ103\",\n            Set(varErrorMensaje,\n                LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa)),   \n        \"REQ010\",\n            Set(varErrorMensaje,\n                Substitute(\n                    Substitute(\n                        LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa),\n                        \"[[NIVEL]]\",\n                        varAlumno.Nivel\n                    ),\n                    \"[[PERIODO]]\",\n                    varAlumno.Periodo\n                )\n            ),\n        \"REQ014\",\n            Set(varErrorMensaje,\n                LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa))\n        );\n        Set(\n            varModalError,\n            true\n        )\n    )\n//Fin if Si ha seleccionado un valor diferente al vacío\n);\n\nIf(varModalError,\n    Set(\n        varHabilitarTipoEvaluacionTipoReclamo,\n        false\n    )\n    ,//Caso contrario If\n    Set(\n        varHabilitarTipoEvaluacionTipoReclamo,\n        true\n    )\n);\n\nSet(var_modalCargaHome,false)"
+                  PaddingBottom: =0
+                  PaddingLeft: =5
+                  PaddingRight: =5
+                  PaddingTop: =5
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =Self.ChevronBackground
+                  SelectionColor: =RGBA(255, 255, 255, 1)
+                  SelectionFill: =Self.ChevronBackground
+                  Width: =400
+                  X: =22
+                  Y: =41
+            - lblNRCVal:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  BorderColor: =RGBA(202, 202, 202, 1)
+                  BorderThickness: =1
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Text: =Text(dpAsignatura.Selected.nrc)
+                  Width: =100
+                  X: =440
+                  Y: =41
+            - dpProfesor:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                  BorderColor: =Self.ChevronBackground
+                  ChevronBackground: =varColorAzulFigma2
+                  ChevronFill: =RGBA(255, 255, 255, 1)
+                  ChevronHoverBackground: =//ColorFade(RGBA(164; 38; 44; 1); -20%)
+                  ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                  DisplayMode: |-
+                    =If(varHabilitarTipoEvaluacionTipoReclamo,
+                    DisplayMode.Edit,
+                    DisplayMode.Disabled
+                    )
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =varColorAzulFigma2
+                  Items: =Filter(colDocenteSeccion, nrc= lblNRCVal.Text && docentePrincipal = TablaConfiguracion.filtroDocentePrincipal)
+                  Items.Value: =DisplayName
+                  PaddingBottom: =5
+                  PaddingLeft: =5
+                  PaddingRight: =5
+                  PaddingTop: =5
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =Self.ChevronBackground
+                  SelectionColor: =RGBA(255, 255, 255, 1)
+                  SelectionFill: =Self.ChevronBackground
+                  Width: =400
+                  X: =22
+                  Y: =119
+            - dpTipoEvaliacion:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                  AllowEmptySelection: =true
+                  BorderColor: =Self.ChevronBackground
+                  ChevronBackground: =varColorAzulFigma2
+                  ChevronFill: =RGBA(255, 255, 255, 1)
+                  ChevronHoverBackground: =//ColorFade(RGBA(164; 38; 44; 1); -20%)
+                  ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                  Default: =
+                  DisplayMode: |-
+                    =If(varHabilitarTipoEvaluacionTipoReclamo,
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =varColorAzulFigma2
+                  Items: |-
+                    =If(
+                        CountRows(colTipoEvaluacionConNota) > 0,
+                            colTIpoEvaluacionCorreccion
+                    )
+                  Items.Value: =DisplayName
+                  OnChange: |-
+                    =//Limpiar seccion de reclamo
+                    Reset(dpTipoReclamo);    
+                    Reset(txtErrorSuma);
+                    Reset(txtErrorSuma);
+                    Reset(txtErrorDigitacion);
+                    Concurrent(
+                        Clear(colPreguntas),
+                        Reset(txtPreguntaCorregidaParcialmente)
+                    );
+                    Concurrent(
+                        Clear(colPreguntas),
+                        Reset(txtPreguntaNoCorregida)
+                    );
+                    Concurrent(
+                        Clear(colPreguntas),
+                        Reset(txtPreguntaNoCorregida)
+                    );
+                    Concurrent(
+                        Reset(dropSubTipoReclamo),
+                        Reset(dropActividad),
+                        Clear(colPreguntasProblemas)
+                    );
+                    Concurrent(
+                        Reset(txtNoConsidero1),
+                        Reset(txtNoConsidero2)
+                    );
+
+                    Set(varHabilitarEnviarSol,false);
+                    Set(varModalError,false);
+
+                    Set(notaEvaluacion,dpTipoEvaliacion.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BNota');
+                    Set(
+                        varTipoEvaluacionTieneNota,
+                        false
+                    );
+
+                    //Si ha seleccionado un valor diferente al vacío
+                    If(!IsBlank(dpTipoEvaliacion.Selected.DisplayName),
+
+                        If( !IsBlank( Value( dpTipoEvaliacion.SelectedText.'data-ADB4D7A662F548B49FAC2B986E348A1BNota' ) ),
+                            Set(
+                                varTipoEvaluacionTieneNota,
+                                true
+                            )
+                        );
+
+                        //Validaciones
+                        Refresh(Var_upc_Validacion);
+                        Refresh(Var_upc_ConfiguracionTramiteVigencia);
+
+                        //Obtenemos la coleccion de validaciones - Pantalla Registro
+                        ClearCollect(colValidaciones,
+                            Filter(Var_upc_Validacion,
+                                estado.Value="SI"&&
+                                codigoConfiguracionTramite.Value=var_confTRam &&
+                                (codigoRequisito.Value = "REQ098")
+                            )
+                        );
+
+                        //Validación de los requisitos
+                        Clear(colCumpleValidacion);
+
+                        ForAll(Sort(colValidaciones,orden,SortOrder.Ascending),
+                            Switch(ThisRecord.codigoRequisito.Value,
+                                "REQ098", //Validar nota en tipo de evaluación - REQ098
+                                Collect(colCumpleValidacion,{
+                                    Codigo:ThisRecord.codigoRequisito.Value,
+                                    Cumple:If(varTipoEvaluacionTieneNota,"Si","No"), 
+                                    Glosa:ThisRecord.codigoGlosa.Value})
+                            )
+                        );
+
+                        Set(var_ResultadoValidacion,Filter(colCumpleValidacion,Cumple="No"));
+                        Set(var_ResultadoValidacionFirst,First(var_ResultadoValidacion));
+
+                        //Comprobamos las validaciones 
+                        Refresh(Var_upc_Glosa);
+
+                        If(
+                            CountRows(var_ResultadoValidacion) <> 0,
+                            Switch(var_ResultadoValidacionFirst.Codigo,
+                                "REQ098",
+                                    Set(varErrorMensaje,
+                                        LookUp(Var_upc_Glosa,codigoGlosa=var_ResultadoValidacionFirst.Glosa,mensajeGlosa))
+                            );
+                            Set(
+                                varModalError,
+                                true
+                            ),
+                            Set(varHabilitarEnviarSol,true)
+                        );
+                    )
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =Self.ChevronBackground
+                  SelectionColor: =RGBA(255, 255, 255, 1)
+                  SelectionFill: =Self.ChevronBackground
+                  Width: =323
+                  X: =440
+                  Y: =120
+            - lblNotaVal:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  BorderColor: =RGBA(202, 202, 202, 1)
+                  BorderThickness: =1
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Text: =notaEvaluacion
+                  Width: =100
+                  X: =779
+                  Y: =120
+            - lblAsignatura_1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  PaddingLeft: =0
+                  Text: ="SELECCIONE TIPO DE RECLAMO *"
+                  Width: =610
+                  X: =22
+                  Y: =162
+            - dpTipoReclamo:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                  AllowEmptySelection: =true
+                  BorderColor: =Self.ChevronBackground
+                  ChevronBackground: =varColorAzulFigma2
+                  ChevronFill: =RGBA(255, 255, 255, 1)
+                  ChevronHoverBackground: =//ColorFade(RGBA(164; 38; 44; 1); -20%)
+                  ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                  DisplayMode: |-
+                    =If(varTipoEvaluacionTieneNota && varHabilitarTipoEvaluacionTipoReclamo && !IsBlank(dpProfesor.SelectedText.Value),
+                        DisplayMode.Edit,
+                        DisplayMode.Disabled
+                    )
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =varColorAzulFigma2
+                  Items: =Var_upc_TipoReclamo
+                  Items.Value: =nombreTipoReclamo
+                  OnChange: |-
+                    =UpdateContext({varNumberTxtErrorSuma:Blank()});
+                    UpdateContext({varNumberTxtErrorDigitacion:Blank()});
+                    UpdateContext({varNumberTxtNoConsidero1:Blank()});
+                    Reset(txtPreguntaClaveErrada);
+                    If(!IsBlank( dpTipoEvaliacion.SelectedText.Value),
+                        Set(varHabilitarEnviarSol,true)
+                    );
+                    Switch(
+                        Self.Selected.codigoTipoReclamo,
+                        TablaConfiguracion.codTipoReclamo1, //ERROR DE SUMA
+                            Reset(txtErrorSuma),
+                        TablaConfiguracion.codTipoReclamo2, //ERROR DE DIGITACIÓN
+                            Reset(txtErrorDigitacion),
+                        TablaConfiguracion.codTipoReclamo3, //NO SE CONSIDERÓ EL TOTAL DE RESPUESTAS
+                            Concurrent(
+                                Clear(colPreguntas),
+                                Reset(txtPreguntaCorregidaParcialmente)
+                            ),
+                        TablaConfiguracion.codTipoReclamo4, //PREGUNTA NO CORREGIDA
+                            Concurrent(
+                                Clear(colPreguntas),
+                                Reset(txtPreguntaNoCorregida)
+                            ),
+                        TablaConfiguracion.codTipoReclamo5, //ERROR EN LA CLAVE DE RESPUESTA
+                            Concurrent(
+                                Clear(colPreguntas),
+                                Reset(txtPreguntaClaveErrada)
+                            ),
+                        TablaConfiguracion.codTipoReclamo6, //PROBLEMAS CON EL BLACKBOARD
+                            Concurrent(
+                                Reset(dropSubTipoReclamo),
+                                Reset(dropActividad),
+                                Clear(colPreguntasProblemas)
+                            ),
+                        TablaConfiguracion.codTipoReclamo7, //NO SE CONSIDERÓ MI NOMBRE EN LA EVALUACIÓN O TRABAJO
+                            Concurrent(
+                                Reset(txtNoConsidero1),
+                                Reset(txtNoConsidero2)
+                            ),
+                        TablaConfiguracion.codTipoReclamo8, //ERROR EN ASIGNACIÓN DE NOTA (NR)
+                            Reset(txtNoRendida)
+                    )
+                  OnSelect: =
+                  PaddingBottom: =5
+                  PaddingLeft: =5
+                  PaddingRight: =5
+                  PaddingTop: =5
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =Self.ChevronBackground
+                  SelectionColor: =RGBA(255, 255, 255, 1)
+                  SelectionFill: =Self.ChevronBackground
+                  Width: =610
+                  X: =22
+                  Y: =198
+            - IconInfoTipoReclamo:
+                Control: Classic/Icon@2.5.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(89, 0, 0, 1)
+                  Height: =30
+                  Icon: =Icon.Information
+                  OnSelect: |-
+                    =Set(varMostrarInfoTipoReclamo,
+                        If(IsBlank(dpTipoReclamo.Selected.informacionTipoReclamo),
+                            false,
+                            true
+                        )
+                    )
+                  Width: =30
+                  X: =645
+                  Y: =198
+      - ctnTipoReclamo1:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =249
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo1
+            Width: =882
+            X: =450
+            Y: =448
+          Children:
+            - lblErrorSuma1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =46
+                  Text: ="(*) Ingrese nota correcta"
+                  Width: =252
+                  X: =14
+                  Y: =15
+            - txtErrorSuma:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  BorderColor: =varColorAzulFigma2
+                  Default: =varNumberTxtErrorSuma
+                  Font: =Font.'Open Sans Condensed'
+                  Format: =TextFormat.Number
+                  Height: =35
+                  HintText: =//"00.00"
+                  HoverBorderColor: =//RGBA(89; 0; 0; 1)
+                  HoverColor: =//RGBA(0; 0; 0; 1)
+                  HoverFill: =RGBA(186, 202, 226, 1)
+                  MaxLength: =5
+                  OnChange: |
+                    =UpdateContext({varNumberTxtErrorSuma:Text(Value(Self.Text),"[$-en-US]#0.00")})
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Tooltip: =
+                  Width: =164
+                  X: =202
+                  Y: =21
+            - lblInfoObligatoria:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(255, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =38
+                  Text: ="(*) Información obligatoria"
+                  Width: =164
+                  X: =14
+                  Y: =61
+      - ctnTipoReclamo2:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Height: =249
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo2
+            Width: =890
+            X: =450
+            Y: =448
+          Children:
+            - lblDigite_1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =46
+                  Text: ="(*) Ingrese nota correcta"
+                  Width: =252
+                  X: =14
+                  Y: =26
+            - txtErrorDigitacion:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  BorderColor: =varColorAzulFigma2
+                  Default: |-
+                    =//Text(varNumberTxtErrorDigitacion; "[$-en-US]#0.00")
+                    varNumberTxtErrorDigitacion
+                  Font: =Font.'Open Sans Condensed'
+                  Format: =TextFormat.Number
+                  Height: =35
+                  HintText: =
+                  HoverBorderColor: =//RGBA(89; 0; 0; 1)
+                  HoverColor: =//RGBA(0; 0; 0; 1)
+                  HoverFill: =RGBA(186, 202, 226, 1)
+                  MaxLength: =5
+                  OnChange: =UpdateContext({varNumberTxtErrorDigitacion:Text(Value(Self.Text),"[$-en-US]#0.00")})
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Tooltip: =
+                  Width: =164
+                  X: =225
+                  Y: =29
+            - lblInfoObligatoria_1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(255, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =38
+                  Text: ="(*) Información obligatoria"
+                  Width: =164
+                  X: =14
+                  Y: =72
+      - ctnTipoReclamo3:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =249
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo3
+            Width: =896
+            X: =450
+            Y: =448
+          Children:
+            - lblDigite_2:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Text: ="(*) Digite pregunta corregida parcialmente"
+                  Width: =252
+                  X: =14
+                  Y: =10
+            - txtPreguntaCorregidaParcialmente:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  BorderColor: =varColorAzulFigma2
+                  Default: =""
+                  Font: =Font.'Open Sans Condensed'
+                  Format: =TextFormat.Number
+                  Height: =30
+                  HoverBorderColor: =//RGBA(89; 0; 0; 1)
+                  HoverColor: =//RGBA(0; 0; 0; 1)
+                  HoverFill: =RGBA(186, 202, 226, 1)
+                  MaxLength: =4
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Width: =97
+                  X: =266
+                  Y: =15
+            - lblInfoObligatoria_2:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(255, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Size: =12
+                  Text: ="(*) Información obligatoria"
+                  Width: =164
+                  X: =14
+                  Y: =218
+            - btnCancelar_1:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =ColorFade(Self.Fill, -15%)
+                  Color: =RGBA(255, 255, 255, 1)
+                  DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                  Fill: =varColorRojo
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                  OnSelect: |-
+                    =ClearCollect(
+                        colCaracteresEspecialesAux,
+                        ["+","-", "=", ".", ",", " "]    
+                    );
+                    If(
+                        IsBlank(txtPreguntaCorregidaParcialmente.Text),// Verifica si el campo está vacío
+                        Set(
+                            varErrorMensaje,
+                            LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo11,mensajeGlosa)
+                        );
+                        Set(
+                            varModalError,
+                            true
+                        ),
+                        If(
+                            CountRows(
+                                Filter(
+                                    colCaracteresEspecialesAux As t,                           
+                                    t.Value in txtPreguntaCorregidaParcialmente.Text
+                                )
+                            ) > 0,
+                            Set(
+                                varErrorMensaje,
+                                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo8,mensajeGlosa)
+                            );
+                            Set(
+                                varModalError,
+                                true
+                            ),
+                            If(
+                                CountRows(
+                                    Filter(
+                                        colPreguntas,
+                                        "PREGUNTA " & txtPreguntaCorregidaParcialmente.Text = pregunta
+                                    )
+                                ) >= 1,
+                                Set(
+                                    varErrorMensaje,
+                                    LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo12,mensajeGlosa)
+                                );
+                                Set(
+                                    varModalError,
+                                    true
+                                ),
+                                Collect(
+                                    colPreguntas,
+                                    {pregunta: "PREGUNTA " & txtPreguntaCorregidaParcialmente.Text}
+                                );
+                                Reset(txtPreguntaCorregidaParcialmente),
+                                SetFocus(txtPreguntaCorregidaParcialmente)
+                            )
+                        )
+                    )
+                  PaddingBottom: =0
+                  PaddingLeft: =0
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  PressedBorderColor: =Self.Fill
+                  PressedColor: =Self.Fill
+                  PressedFill: =Self.Color
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Text: ="AGREGAR"
+                  Width: =95
+                  X: =377
+                  Y: =15
+            - Gallery2:
+                Control: Gallery@2.15.0
+                Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Height: =128
+                  Items: =colPreguntas
+                  TemplateSize: =46
+                  Width: =504
+                  X: =14
+                  Y: =97
+                Children:
+                  - Title2:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(50, 49, 48, 1)
+                        Fill: =varColorFondo
+                        Font: =Font.'Open Sans'
+                        FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                        OnSelect: =Select(Parent)
+                        PaddingBottom: =0
+                        PaddingLeft: =10
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =12
+                        Text: =ThisItem.pregunta
+                        Width: =349
+                        X: =8
+                        Y: =4
+                  - Button5:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =varColorRojo
+                        Color: =varColorRojo
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Open Sans Condensed'
+                        Height: =38
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                        OnSelect: =Remove(colPreguntas,ThisItem)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Size: =14
+                        Text: ="ELIMINAR"
+                        Width: =95
+                        X: =368
+                        Y: =4
+            - Label12:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =varColorFondo
+                  Fill: =varColorAzulFigma2
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  Text: ="PREGUNTAS"
+                  Width: =345
+                  X: =21
+                  Y: =67
+      - ctnTipoReclamo4:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =249
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo4
+            Width: =894
+            X: =450
+            Y: =448
+          Children:
+            - lblDigite_3:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =46
+                  Text: |-
+                    ="(*) Digite pregunta no corregida: "
+                  Width: =252
+                  X: =14
+                  Y: =11
+            - txtPreguntaNoCorregida:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  BorderColor: =varColorAzulFigma2
+                  Default: =""
+                  Font: =Font.'Open Sans Condensed'
+                  Format: =TextFormat.Number
+                  Height: =30
+                  HoverBorderColor: =//RGBA(89; 0; 0; 1)
+                  HoverColor: =//RGBA(0; 0; 0; 1)
+                  HoverFill: =RGBA(186, 202, 226, 1)
+                  MaxLength: =4
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Width: =164
+                  X: =211
+                  Y: =19
+            - lblInfoObligatoria_3:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(255, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =38
+                  Text: ="(*) Información obligatoria"
+                  Width: =164
+                  X: =14
+                  Y: =253
+            - btnCancelar_2:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =ColorFade(Self.Fill, -15%)
+                  Color: =RGBA(255, 255, 255, 1)
+                  DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                  Fill: =varColorRojo
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                  OnSelect: |-
+                    =If(
+                        IsBlank(txtPreguntaNoCorregida.Text),// Verifica si el campo está vacío
+                        Set(
+                            varErrorMensaje,
+                            LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo11,mensajeGlosa)
+                        );
+                        Set(
+                            varModalError,
+                            true
+                        ),
+                        If(
+                            CountRows(
+                                Filter(
+                                    colCaracteresEspecialesAux As t,
+                                    t.Value in txtPreguntaNoCorregida.Text
+                                )
+                            ) > 0,
+                            Set(
+                                varErrorMensaje,
+                                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo8,mensajeGlosa)
+                            );
+                            Set(
+                                varModalError,
+                                true
+                            ),
+                            If(
+                                CountRows(
+                                    Filter(
+                                        colPreguntas,
+                                        "PREGUNTA " & txtPreguntaNoCorregida.Text = pregunta
+                                    )
+                                ) >= 1,
+                                Set(
+                                    varErrorMensaje,
+                                    LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo12,mensajeGlosa)
+                                );
+                                Set(
+                                    varModalError,
+                                    true
+                                ),
+                                Collect(
+                                    colPreguntas,
+                                    {pregunta: "PREGUNTA " & txtPreguntaNoCorregida.Text}
+                                );
+                                Reset(txtPreguntaNoCorregida),
+                                SetFocus(txtPreguntaNoCorregida)
+                            )
+                        )
+                    )
+                  PressedBorderColor: =Self.Fill
+                  PressedColor: =Self.Fill
+                  PressedFill: =Self.Color
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Text: ="AGREGAR"
+                  Width: =130
+                  X: =389
+                  Y: =19
+            - Gallery2_1:
+                Control: Gallery@2.15.0
+                Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Height: =151
+                  Items: =colPreguntas
+                  TemplateSize: =46
+                  Width: =416
+                  X: =14
+                  Y: =94
+                Children:
+                  - Title2_1:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(50, 49, 48, 1)
+                        Fill: =varColorFondo
+                        Font: =Font.'Open Sans'
+                        FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                        OnSelect: =Select(Parent)
+                        PaddingBottom: =0
+                        PaddingLeft: =10
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =12
+                        Text: =ThisItem.pregunta
+                        Width: =295
+                        X: =8
+                        Y: =4
+                  - Button5_1:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =varColorRojo
+                        Color: =varColorRojo
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Open Sans Condensed'
+                        Height: =38
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                        OnSelect: =Remove(colPreguntas,ThisItem)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Size: =12
+                        Text: ="ELIMINAR"
+                        Width: =88
+                        X: =314
+                        Y: =4
+            - Label12_1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =varColorFondo
+                  Fill: =varColorAzulFigma2
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  Text: ="PREGUNTAS"
+                  Width: =296
+                  X: =21
+                  Y: =64
+      - ctnTipoReclamo5:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =249
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo5
+            Width: =890
+            X: =450
+            Y: =448
+          Children:
+            - lblDigite_4:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Text: ="(*) Digite pregunta con clave errada:"
+                  Width: =252
+                  X: =14
+                  Y: =25
+            - txtPreguntaClaveErrada:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  BorderColor: =varColorAzulFigma2
+                  Default: =""
+                  Font: =Font.'Open Sans Condensed'
+                  Format: =TextFormat.Number
+                  Height: =30
+                  HoverBorderColor: =//RGBA(89; 0; 0; 1)
+                  HoverColor: =//RGBA(0; 0; 0; 1)
+                  HoverFill: =RGBA(186, 202, 226, 1)
+                  MaxLength: =4
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Width: =164
+                  X: =234
+                  Y: =25
+            - lblInfoObligatoria_4:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(255, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Text: ="(*) Información obligatoria"
+                  Width: =164
+                  X: =30
+                  Y: =258
+            - btnCancelar_3:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =ColorFade(Self.Fill, -15%)
+                  Color: =RGBA(255, 255, 255, 1)
+                  DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                  Fill: =varColorRojo
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                  OnSelect: "=If(\n    IsBlank(txtPreguntaClaveErrada.Text),// Verifica si el campo está vacío\n    Set(\n        varErrorMensaje,\n        LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo11,mensajeGlosa)\n        \n    );\n    Set(\n        varModalError,\n        true\n    ),\n    If(\n        CountRows(\n            Filter(\n                colCaracteresEspecialesAux As t,\n                t.Value in txtPreguntaClaveErrada.Text\n            )\n        ) > 0,\n        Set(\n            varErrorMensaje,\n            LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo8,mensajeGlosa)            \n        );\n        Set(\n            varModalError,\n            true\n        ),\n        If(\n            CountRows(\n                Filter(\n                    colPreguntas,\n                    \"PREGUNTA \" & txtPreguntaClaveErrada.Text = pregunta\n                )\n            ) >= 1,\n            Set(\n                varErrorMensaje,\n                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo12,mensajeGlosa)\n            );\n            Set(\n                varModalError,\n                true\n            ),\n            Collect(\n                colPreguntas,\n                {pregunta: \"PREGUNTA \" & txtPreguntaClaveErrada.Text}\n            );\n            Reset(txtPreguntaClaveErrada),\n            SetFocus(txtPreguntaClaveErrada)\n        )\n    )\n)"
+                  PressedBorderColor: =Self.Fill
+                  PressedColor: =Self.Fill
+                  PressedFill: =Self.Color
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Text: ="AGREGAR"
+                  Width: =130
+                  X: =412
+                  Y: =25
+            - Gallery2_2:
+                Control: Gallery@2.15.0
+                Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Height: =151
+                  Items: =colPreguntas
+                  TemplateSize: =46
+                  Width: =416
+                  X: =14
+                  Y: =107
+                Children:
+                  - Title2_2:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(50, 49, 48, 1)
+                        Fill: =varColorFondo
+                        Font: =Font.'Open Sans'
+                        FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                        OnSelect: =Select(Parent)
+                        PaddingBottom: =0
+                        PaddingLeft: =10
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Size: =12
+                        Text: =ThisItem.pregunta
+                        Width: =295
+                        X: =8
+                        Y: =4
+                  - Button5_2:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =varColorRojo
+                        Color: =varColorRojo
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Open Sans Condensed'
+                        Height: =38
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                        OnSelect: =Remove(colPreguntas,ThisItem)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Size: =13
+                        Text: ="ELIMINAR"
+                        Width: =88
+                        X: =314
+                        Y: =4
+            - Label12_2:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =varColorFondo
+                  Fill: =varColorAzulFigma2
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  Text: ="PREGUNTAS"
+                  Width: =296
+                  X: =21
+                  Y: =77
+      - ctnTipoReclamo6:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =249
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo6
+            Width: =896
+            X: =450
+            Y: =448
+          Children:
+            - lblDigite_5:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Text: ="(*) Sub tipo de reclamo:"
+                  Width: =164
+                  X: =10
+                  Y: =10
+            - lblInfoObligatoria_5:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(255, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Size: =12
+                  Text: ="(*) Información obligatoria"
+                  Width: =164
+                  X: =24
+                  Y: =219
+            - btnAgregarTipoReclamo6:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =ColorFade(Self.Fill, -15%)
+                  Color: =RGBA(255, 255, 255, 1)
+                  DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                  Fill: =varColorRojo
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                  OnSelect: |-
+                    =If(
+                        IsBlank(dropSubTipoReclamo.Selected) || IsBlank(dropActividad.Selected),// Verifica si el campo está vacío
+                        Set(
+                            varErrorMensaje,
+                            LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo9,mensajeGlosa)
+                        );
+                        Set(
+                            varModalError,
+                            true
+                        ),
+                        If(
+                            CountRows(
+                                Filter(
+                                    colPreguntasProblemas,
+                                    (dropSubTipoReclamo.Selected.nombreSubTipoReclamo in pregunta1 && dropActividad.Selected.nombreActividad in pregunta2)
+                                )
+                            ) >= 1,
+                            Set(
+                                varErrorMensaje,
+                                LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaValidacionTipoReclamo10,mensajeGlosa)
+                            );
+                            Set(
+                                varModalError,
+                                true
+                            ),
+                            Collect(
+                                colPreguntasProblemas,
+                                {
+                                    pregunta1: dropSubTipoReclamo.Selected.nombreSubTipoReclamo,
+                                    pregunta2: dropActividad.Selected.nombreActividad
+                                }
+                            );
+                            Reset(txtPreguntaClaveErrada),
+                            SetFocus(txtPreguntaClaveErrada)
+                        )
+                    )
+                  PressedBorderColor: =Self.Fill
+                  PressedColor: =Self.Fill
+                  PressedFill: =Self.Color
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Text: ="AGREGAR"
+                  Width: =150
+                  X: =513
+                  Y: =52
+            - lblDigite_6:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Text: ="(*) Actividad:"
+                  Width: =89
+                  X: =75
+                  Y: =52
+            - dropActividad:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                  BorderColor: =Self.ChevronBackground
+                  ChevronBackground: =varColorAzulFigma2
+                  ChevronFill: =RGBA(255, 255, 255, 1)
+                  ChevronHoverBackground: =//ColorFade(RGBA(164; 38; 44; 1); -20%)
+                  ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =28
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =varColorAzulFigma2
+                  Items: =Var_upc_ActividadCorreccionEvaluaciones
+                  Items.Value: =nombreActividad
+                  PaddingBottom: =5
+                  PaddingLeft: =5
+                  PaddingRight: =5
+                  PaddingTop: =5
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =Self.ChevronBackground
+                  SelectionColor: =RGBA(255, 255, 255, 1)
+                  SelectionFill: =Self.ChevronBackground
+                  Width: =334
+                  X: =164
+                  Y: =52
+            - dropSubTipoReclamo:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                  BorderColor: =Self.ChevronBackground
+                  ChevronBackground: =varColorAzulFigma2
+                  ChevronFill: =RGBA(255, 255, 255, 1)
+                  ChevronHoverBackground: =//ColorFade(RGBA(164; 38; 44; 1); -20%)
+                  ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HoverColor: =RGBA(255, 255, 255, 1)
+                  HoverFill: =varColorAzulFigma2
+                  Items: =Var_upc_SubTipoReclamo
+                  Items.Value: =nombreSubTipoReclamo
+                  PaddingBottom: =5
+                  PaddingLeft: =5
+                  PaddingRight: =5
+                  PaddingTop: =5
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =Self.ChevronBackground
+                  SelectionColor: =RGBA(255, 255, 255, 1)
+                  SelectionFill: =Self.ChevronBackground
+                  Width: =334
+                  X: =164
+                  Y: =10
+            - Gallery3:
+                Control: Gallery@2.15.0
+                Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+                Properties:
+                  BorderColor: =RGBA(184, 0, 0, 1)
+                  Height: =98
+                  Items: =colPreguntasProblemas
+                  TemplateSize: =48
+                  Width: =656
+                  X: =19
+                  Y: =124
+                Children:
+                  - Title3:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Color: =RGBA(50, 49, 48, 1)
+                        Fill: =varColorFondo
+                        Font: =Font.'Open Sans Condensed'
+                        FontWeight: =If(ThisItem.IsSelected, FontWeight.Normal, FontWeight.Normal)
+                        OnSelect: =Select(Parent)
+                        PaddingBottom: =0
+                        PaddingLeft: =10
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Text: =ThisItem.pregunta2
+                        Width: =253
+                        X: =225
+                        Y: =5
+                  - Subtitle3:
+                      Control: Label@2.5.1
+                      Properties:
+                        BorderColor: =RGBA(0, 0, 0, 1)
+                        Fill: =varColorFondo
+                        Font: =Font.'Open Sans Condensed'
+                        FontWeight: =If(ThisItem.IsSelected, FontWeight.Normal, FontWeight.Normal)
+                        OnSelect: =Select(Parent)
+                        PaddingBottom: =0
+                        PaddingLeft: =10
+                        PaddingRight: =0
+                        PaddingTop: =0
+                        Text: =ThisItem.pregunta1
+                        Width: =211
+                        X: =8
+                        Y: =5
+                  - Button6:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =varColorRojo
+                        Color: =varColorRojo
+                        DisabledBorderColor: =RGBA(166, 166, 166, 1)
+                        Fill: =RGBA(0, 0, 0, 0)
+                        Font: =Font.'Open Sans Condensed'
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =RGBA(255, 255, 255, 1)
+                        HoverFill: =ColorFade(RGBA(164, 38, 44, 1), -20%)
+                        OnSelect: =Remove(colPreguntasProblemas,ThisItem)
+                        PressedBorderColor: =Self.Fill
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =0
+                        RadiusBottomRight: =0
+                        RadiusTopLeft: =0
+                        RadiusTopRight: =0
+                        Text: ="ELIMINAR"
+                        Width: =132
+                        X: =496
+                        Y: =5
+            - Label7:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  BorderColor: =RGBA(255, 255, 255, 1)
+                  BorderThickness: =1
+                  Color: =RGBA(255, 255, 255, 1)
+                  Fill: =varColorAzulFigma2
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  Size: =12
+                  Text: ="SUB TIPO DE RECLAMO"
+                  Width: =216
+                  X: =24
+                  Y: =94
+            - Label7_1:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  BorderColor: =RGBA(255, 255, 255, 1)
+                  BorderThickness: =1
+                  Color: =RGBA(255, 255, 255, 1)
+                  Fill: =varColorAzulFigma2
+                  Font: =Font.'Open Sans Condensed'
+                  FontWeight: =FontWeight.Bold
+                  Height: =30
+                  Size: =12
+                  Text: ="ACTIVIDAD"
+                  Width: =256
+                  X: =242
+                  Y: =94
+      - ctnTipoReclamo7:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            DropShadow: =DropShadow.None
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =249
+            RadiusBottomLeft: =0
+            RadiusBottomRight: =0
+            RadiusTopLeft: =0
+            RadiusTopRight: =0
+            Visible: =dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo7
+            Width: =882
+            X: =450
+            Y: =448
+          Children:
+            - lblDigite_7:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Text: ="(*) Ingrese nota correcta"
+                  Width: =252
+                  X: =14
+                  Y: =14
+            - txtNoConsidero1:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  BorderColor: =varColorAzulFigma2
+                  Default: |-
+                    =//Text(varNumberTxtNoConsidero1; "[$-en-US]#0.00")
+                    varNumberTxtNoConsidero1
+                  Font: =Font.'Open Sans Condensed'
+                  Format: =TextFormat.Number
+                  Height: =30
+                  HintText: =
+                  HoverBorderColor: =//RGBA(89; 0; 0; 1)
+                  HoverColor: =//RGBA(0; 0; 0; 1)
+                  HoverFill: =RGBA(186, 202, 226, 1)
+                  MaxLength: =5
+                  OnChange: =UpdateContext({varNumberTxtNoConsidero1:Text(Value(Self.Text),"[$-en-US]#0.00")})
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Tooltip: =
+                  Width: =164
+                  X: =266
+                  Y: =14
+            - lblInfoObligatoria_6:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(255, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =38
+                  Text: ="(*) Información obligatoria"
+                  Width: =164
+                  X: =14
+                  Y: =96
+            - lblDigite_8:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Text: ="(*) Digite grupo al que pertenece"
+                  Width: =252
+                  X: =14
+                  Y: =55
+            - txtNoConsidero2:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  BorderColor: =varColorAzulFigma2
+                  Default: =""
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HoverBorderColor: =//RGBA(89; 0; 0; 1)
+                  HoverColor: =//RGBA(0; 0; 0; 1)
+                  HoverFill: =RGBA(186, 202, 226, 1)
+                  MaxLength: =4
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Width: =164
+                  X: =266
+                  Y: =55
+      - cntTipoReclamo8:
+          Control: GroupContainer@1.5.0
+          Variant: ManualLayout
+          Properties:
+            Visible: =dpTipoReclamo.Selected.codigoTipoReclamo = TablaConfiguracion.codTipoReclamo8
+            Width: =890
+            X: =450
+            Y: =448
+          Children:
+            - lblNotaAsignada:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  Text: ="Nota asignada:"
+                  Width: =252
+                  X: =40
+                  Y: =40
+            - txtNoRendida:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  BorderColor: =varColorAzulFigma2
+                  Default: =First(TablaConfiguracion.tipoNota).Value
+                  DisabledColor: =RGBA(0, 0, 0, 1)
+                  DisplayMode: =DisplayMode.Disabled
+                  Font: =Font.'Open Sans Condensed'
+                  Height: =30
+                  HintText: =
+                  HoverBorderColor: =//RGBA(89; 0; 0; 1)
+                  HoverColor: =//RGBA(0; 0; 0; 1)
+                  HoverFill: =RGBA(186, 202, 226, 1)
+                  MaxLength: =5
+                  RadiusBottomLeft: =0
+                  RadiusBottomRight: =0
+                  RadiusTopLeft: =0
+                  RadiusTopRight: =0
+                  Tooltip: =
+                  Width: =164
+                  X: =292
+                  Y: =40
+      - InfoAlumno_3:
+          Control: CanvasComponent
+          ComponentName: InfoAlumno
+          Properties:
+            Height: =425
+            Width: =332
+            X: =81
+            Y: =230
+            comCodigoAlumno: =varAlumno.codigoAlumno
+            comPeriodo: =varAlumno.Periodo
+            comPrograma: =varAlumno.CodigodePrograma &" - "& varAlumno.ProgramaDescripcion
+      - BanerSuperior_4:
+          Control: CanvasComponent
+          ComponentName: BanerSuperior
+          Properties:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =115
+            Width: =1306
+            X: =58
+            comImagenAlumno: =varFotoAlumno
+            comNombreUsuario: =If(varUsuarioRol="ALUMNO",varNombreAlumno,User().FullName)
+      - BanerLateral_4:
+          Control: CanvasComponent
+          ComponentName: BanerLateral
+          Properties:
+            Fill: =varColorFondo
+            Height: =768
+            Width: =60
+            varBandejaVisible: |-
+              =If(
+                  varUsuarioRol = "ALUMNO",
+                  true,
+                  false
+              )
+            varCodigoUsuario: =varCodigoUsuario
+            varEnlace: =varEnlaceHome
+            varLinkBandeja: =varLinkBandeja
+            varLinkHome: |-
+              =If(
+                  varUsuarioRol = "ALUMNO",
+                  varLinkHome,
+                  varUsuarioRol = "COUNTER",
+                  varLinkCounter,     
+                  varLinkEvaluador
+              )
+            varNivel: =varUsuarioNivel
+            varRol: =varUsuarioRol
+      - ModalMensajeCorrecto_1:
+          Control: CanvasComponent
+          ComponentName: ModalMensajeCorrecto
+          Properties:
+            BtnCerrar: |
+              =Set(
+                  varModalCorrecto,
+                  false
+              );
+              If(
+                  var_haveExtra,
+                  If(
+                      IsError(
+                          Patch(
+                              Var_upc_Alumno,
+                              LookUp(Var_upc_Alumno, codigoAlumno = varAlumno.codigoAlumno && Nivel = varAlumno.Nivel),
+                              {
+                                  jsonDetalleMatricula: JSON(LookUp(colDetalleMatriculaConcatenado,EndsWith(codigoPeriodo, varAlumno.CodigoPeriodo)).cursos),
+                                  Periodo: First(Filter(colDetalleMatriculaConcatenado,EndsWith(codigoPeriodo, varAlumno.CodigoPeriodo))).codigoPeriodo
+                              }
+                          )
+                      )
+                      ,
+                      Launch(
+                          varEnlaceHome,
+                          {
+                          },
+                          LaunchTarget.Replace
+                      )
+                      ,
+                      If(
+                          varUsuarioRol = TablaConfiguracion.RolAlumno,
+                          Launch(
+                              varEnlaceHome,
+                              {
+                                  Link: varLinkBandeja,
+                                  codeAlumno: varAlumno.codigoUsuario,
+                                  Nivel: varAlumno.Nivel,
+                                  Rol: varUsuarioRol
+                              },
+                              LaunchTarget.Replace
+                          ),
+                          varUsuarioRol = TablaConfiguracion.RolAdministrativo,
+                          Launch(
+                              varEnlaceHome,
+                              {
+                                  Link: varLinkCounter,
+                                  codeAlumno: varAlumno.codigoUsuario,
+                                  Nivel: varAlumno.Nivel,
+                                  Rol: varUsuarioRol
+                              },
+                              LaunchTarget.Replace
+                          )
+                          ,
+                          Launch(
+                              varEnlaceHome,
+                              {
+                                  Link: varLinkEvaluador,
+                                  codeAlumno: varAlumno.codigoUsuario,
+                                  Nivel: varAlumno.Nivel,
+                                  Rol: varUsuarioRol
+                              },
+                              LaunchTarget.Replace
+                          )
+                      )
+                  )
+                  ,
+                  If(
+                      varUsuarioRol = TablaConfiguracion.RolAlumno,
+                      Launch(
+                          varEnlaceHome,
+                          {
+                              Link: varLinkBandeja,
+                              codeAlumno: varAlumno.codigoUsuario,
+                              Nivel: varAlumno.Nivel,
+                              Rol: varUsuarioRol
+                          },
+                          LaunchTarget.Replace
+                      )
+                      ,
+                      varUsuarioRol = TablaConfiguracion.RolAdministrativo,
+                      Launch(
+                          varEnlaceHome,
+                          {
+                              Link: varLinkCounter,
+                              codeAlumno: varAlumno.codigoUsuario,
+                              Nivel: varAlumno.Nivel,
+                              Rol: varUsuarioRol
+                          },
+                          LaunchTarget.Replace
+                      )
+                      ,
+                      Launch(
+                          varEnlaceHome,
+                          {
+                              Link: varLinkEvaluador,
+                              codeAlumno: varAlumno.codigoUsuario,
+                              Nivel: varAlumno.Nivel,
+                              Rol: varUsuarioRol
+                          },
+                          LaunchTarget.Replace
+                      )
+                  )
+              )
+            Fill: =RGBA(169, 169, 169, 0)
+            Height: =768
+            ImagenCabecera: =LookUp(Var_upc_Icono,codigoIcono=TablaConfiguracion.codigoIconoSuccess).imagenIcono
+            TextoMensaje: =LookUp(Var_upc_Glosa, codigoGlosa = TablaGlosas.codigoGlosaCorrectoRegistro).mensajeGlosa
+            Visible: =varModalCorrecto
+            Width: =1366
+      - ModalMensajeConfirmacion_1:
+          Control: CanvasComponent
+          ComponentName: ModalMensajeConfirmacion
+          Properties:
+            BtnAceptar: =
+            BtnCerrar: =Set(varModalConfirmacion,false)
+            Height: =768
+            ImagenCabecera: =LookUp(Var_upc_Icono,codigoIcono=TablaConfiguracion.codigoIconoConfirm).imagenIcono
+            TextoMensaje: =LookUp(colGlosasValidacionesRequeridas,codigoGlosa = TablaGlosas.codigoGlosaConfirmarRegistro,mensajeGlosa)
+            Visible: =varModalConfirmacion
+            Width: =1366
+      - ModalMensajeError_2:
+          Control: CanvasComponent
+          ComponentName: ModalMensajeError
+          Properties:
+            BtnCerrar: |-
+              =Clear(colValidaciones);
+              Clear(colCumpleRegla);
+              //Set(varErrorMensaje;"");;
+              Set(varModalError,false);
+
+              //Inico para registrar error
+              Refresh(Var_upc_Log);
+              Set(
+                  varJsonLog,
+                  LookUp(
+                      Var_upc_Log,
+                      codigoUsuario = varCodigoUsuario,
+                      mensaje
+                  )
+              );
+              ClearCollect(
+                  colMensajeLog,
+                  ForAll(
+                      ParseJSON(varJsonLog),
+                      {
+                          fecha: Text(ThisRecord.fecha),
+                          tramite: Text(ThisRecord.tramite),
+                          nivel: Text(ThisRecord.nivel),
+                          tipo: Text(ThisRecord.tipo),
+                          mensaje: Text(ThisRecord.mensaje)
+                      }
+                  )
+              );
+              // Aumentar el log actual
+              Patch(
+                  colMensajeLog,
+                  Defaults(colMensajeLog),
+                  {
+                      fecha: Text(
+                          Now(),
+                          TablaConfiguracion.FormatoFechaHora
+                      ),
+                      tramite: var_NombreTramite.Value,
+                      nivel: varAlumno.Nivel,
+                      tipo: If(IsBlank(var_ErrorInsertarSolicitud), First(TablaConfiguracion.tipoAlerta).Value, Last(TablaConfiguracion.tipoAlerta).Value), // "VALIDACIÓN" o "ERROR"; 
+                      mensaje: varErrorMensaje & If(!IsBlank(var_ErrorInsertarSolicitud)," - " & Last(var_ErrorInsertarSolicitud).Column & " - " & Last(var_ErrorInsertarSolicitud).Message) 
+                  }
+              );
+              // Guardar datos en formato json
+              Set(
+                  varJsonLogUpdate,
+                  JSON(colMensajeLog)
+              );
+              // Enviar los datos a la lista de logs
+              If(
+                  IsBlank(
+                      LookUp(
+                          Var_upc_Log,
+                          codigoUsuario = varCodigoUsuario
+                      )
+                  ),
+                  Patch(
+                      Var_upc_Log,
+                      Defaults(Var_upc_Log),
+                      {
+                          fecha: Text(Now(), "mm/dd/yyyy"),
+                          codigoUsuario: varCodigoUsuario,
+                          mensaje: varJsonLogUpdate
+                      }
+                  )
+                  ,
+                  Patch(
+                      Var_upc_Log, 
+                      LookUp(Var_upc_Log, codigoUsuario = varCodigoUsuario), 
+                      {
+                          mensaje: varJsonLogUpdate
+                      }
+                  )
+              );
+              //Fin resigrar error
+
+              Set(varErrorMensaje,"");
+              Set(varModalError,
+                  false
+              );
+              ""
+            CabeceraImagen: =LookUp(Var_upc_Icono,codigoIcono=TablaConfiguracion.codigoIconoAlerta).imagenIcono
+            Height: =768
+            TextoMensaje: =varErrorMensaje
+            Visible: =varModalError
+            Width: =1366
+      - ModalMensajeTipoReclamo_1:
+          Control: CanvasComponent
+          ComponentName: ModalMensajeTipoReclamo
+          Properties:
+            BtnCerrar: =Set(varMostrarInfoTipoReclamo,false);
+            CabeceraImagen: =SampleImage
+            Height: =768
+            TextoMensaje: =dpTipoReclamo.Selected.informacionTipoReclamo
+            Visible: =varMostrarInfoTipoReclamo
+            Width: =1366
+      - ModalCargando_2:
+          Control: CanvasComponent
+          ComponentName: ModalCargando
+          Properties:
+            Height: =768
+            Visible: =var_modalCargaHome
+            Width: =1366
