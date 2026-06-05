@@ -1,12 +1,21 @@
 Solucion: HistoricoSolicitudesAprobadas [Pantalla usada para debbugear] > [Pantalla final]
 [Los flujos de automate no funcionan porque no tienen llegada a SQL]
-                                                                                                                                       [Tiene un Logic App y un API dentro de Azure]
-[Ingresa a la solución Sistema Tramites Home Alumnos > [Sistema de Trámites] - Alumnos] > [Código de usuario usado para probar: U20211A148] > [Elegir la opción de Pregrado/EPE] >
+
+ESTO ES PARA LOS ALUMNOS                                                                                                                        
+[Ingresa a la solución Sistema Tramites Home Alumnos > 
+[Sistema de Trámites] - Alumnos] > [Tiene un Logic App y un API dentro de Azure]
+[Código de usuario usado para probar: U20211A148] > [Elegir la opción de Pregrado/EPE] >
 [En los parametros de la URL envia el ROL y el USUARIO] >
+En PROD se debe entrar por URL a las listas, porque estan ocultos
 
-"codigoAlumno": "@{triggerBody()?['idBanner']}"
+ESTO ES PARA LOS VISUALIZADORES/ADMINISTRATIVOS
+Buscar la solucion [Sistea Tramites visualizador]
 
-2836a495-6cb6-f011-bbd2-6045bd38c2d8
+*En la pantalla de [Sistema de Trámites] - Alumnos > La pantalla P_Bandeja ya esta actualizado el Patch para optimizar la consulta
+*En los power app quedo pendiente algun tema de licencias 
+
+
+Alinear con el equipo de soporte, en caso actualicen la bandeja de Alumno, solicitar que me pasen los cambios para agregarlo 
 
 Estaban desactivados, los volvi a activar
 [Corrección de Evaluaciones] - Proceso Actualizar Nota UCLASS
