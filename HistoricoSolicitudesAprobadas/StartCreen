@@ -1,0 +1,8 @@
+If(
+    Or(
+        IsBlank(Param("codigoUsuario"));
+        IsBlank(Param("rol"))
+    );
+    P_Intro;
+    P_Bandeja
+)

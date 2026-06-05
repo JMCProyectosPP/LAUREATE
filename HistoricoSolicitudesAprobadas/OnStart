@@ -1,0 +1,127 @@
+//Modal de carga
+Set(
+    varModalCarga;
+    true
+);;
+//Refrescar listas
+Refresh(Var_upc_TramiteConfiguracionInicial);;
+//Variables de Colores
+Set(
+    var_globalAppColors;
+    {
+        // Primary Colors
+        Primary1: ColorValue("#03045e");
+        // Navy Blue
+        Primary2: ColorValue("#F05454");
+        // Light Red
+        Primary3: ColorValue("#222831");
+        // Dark Blue
+        Primary4: ColorValue("#DDDDDD");
+        // Light Gray
+        // Accent Colors
+        Black: ColorValue("#000000");
+        Cyan: ColorValue("#17A2B8");
+        Green: ColorValue("#28A745");
+        Orange: ColorValue("#FD7E14");
+        Red: ColorValue("#c1121f");
+        Teal: ColorValue("#20C997");
+        White: ColorValue("#FFFFFF");
+        Yellow: ColorValue("#FFC107");
+        Gray: ColorValue("#A5B5AB")
+    }
+);;
+Clear(colPeriodos);;
+ForAll(
+    ParseJSON(
+        LookUp(
+            Var_upc_CatalogosMotorTramites;
+            ID = 1;
+            jsonPeriodos
+        )
+    );
+    Collect(
+        colPeriodos;
+        {
+            codigo:ThisRecord.codigo
+        }
+    )
+);;
+//Código de trámite
+Set(
+    varCodTramiteInicial;
+    "TRA038"
+);;
+//JSON parseado trámite
+Set(
+    varParsedConfig;
+    ParseJSON(
+        LookUp(
+            Var_upc_TramiteConfiguracionInicial;
+            codigoTramite.Value = varCodTramiteInicial;
+            jsonTablaConfiguracion
+        )
+    )
+);;
+//JSON parseado glosas
+Set(
+    varParsedConfigGlosas;
+    ParseJSON(
+        LookUp(
+            Var_upc_TramiteConfiguracionInicial;
+            codigoTramite.Value = varCodTramiteInicial;
+            jsonTablaGlosas
+        )
+    )
+);;
+//Variables individuales
+Set(
+    varTablaJSONConfiguraciones;
+    {
+        varCodigoTramite:Text(varParsedConfig.codigoTramite); //TRA038
+        varFiltroTodos:Text(varParsedConfig.filtroTodos); //Todos
+        varFlagSi:Text(varParsedConfig.flagSi); //Si
+        varFlagNo:Text(varParsedConfig.flagNo); //No
+        varEstadoVacio:Text(varParsedConfig.estadoVacio); //Vacio
+        varEstadoError:Text(varParsedConfig.estadoError); //Error
+        varEstadoCorrecto:Text(varParsedConfig.estadoCorrecto); //Correcto
+        varUsuarioRol:Text(varParsedConfig.varUsuarioRol); //Alumno
+        varHomeAlumno:Text(varParsedConfig.varHomeAlumno) //HOM002
+    }
+);;
+//Variables Glosas
+Set(
+    varTablaJSONGlosas;
+    {
+        varGlosaVacioConsultaSQL:Text(varParsedConfigGlosas.glosaVacioConsultaSQL);
+        varGlosaErrorConsultaSQL:Text(varParsedConfigGlosas.glosaErrorConsultaSQL)
+    }
+);;
+//Revisar parámetros
+If(
+    Or(
+        IsBlank(Param("codigoUsuario"));
+        IsBlank(Param("rol"))
+    );
+    Launch(
+        LookUp(
+            Var_upc_Grupo;
+            codigoGrupo = varTablaJSONConfiguraciones.varHomeAlumno;
+            rutaGrupo
+        );
+        {};
+        LaunchTarget.Replace
+    )
+);;
+//Asignar variables a parámetros
+Set(
+    varCodigoUsuario;
+    Param("codigoUsuario")
+);;
+Set(
+    varUsuarioRol;
+    Param("rol")
+);;
+Set(
+    varIniciarTimer;
+    true
+)

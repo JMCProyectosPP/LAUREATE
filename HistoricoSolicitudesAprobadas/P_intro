@@ -1,0 +1,229 @@
+Screens:
+  P_Intro:
+    Properties:
+      OnVisible: =Set(varModalCarga,false)
+    Children:
+      - Html_Form:
+          Control: HtmlViewer@2.1.0
+          Properties:
+            DisabledBorderColor: =RGBA(56, 56, 56, 1)
+            Font: =Font.'Open Sans'
+            Height: =688
+            HtmlText: |-
+              ="<div style='margin:10px;width:570px; height: 660px; background: white;box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;border-radius:15px'></div>"
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Width: =602
+            X: =81
+            Y: =45
+      - Rct_Form:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =RGBA(246, 246, 246, 1)
+            Height: =668
+            Width: =602
+            X: =683
+            Y: =50
+      - Txt_CodUsuario:
+          Control: Classic/TextInput@2.3.2
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(229, 10, 23, 1)
+            Default: =""
+            HintText: ="Ingresar Valor"
+            HoverBorderColor: =RGBA(229, 10, 23, 1)
+            HoverFill: =RGBA(229, 10, 23, 0.25)
+            OnSelect: =
+            X: =294
+            Y: =316
+      - Img_Ej:
+          Control: Image@2.2.3
+          Properties:
+            BorderThickness: =7
+            Height: =330
+            Image: ='_5edb8106-851c-44ec-a6d2-e8cbcbaa97f8'
+            Width: =332
+            X: =818
+            Y: =91
+      - Img_UPC:
+          Control: Image@2.2.3
+          Properties:
+            Height: =80
+            Image: =UPC_logo_transparente
+            Width: =80
+            X: =854
+            Y: =561
+      - Img_Bit:
+          Control: Image@2.2.3
+          Properties:
+            Height: =188
+            Image: ='Business IT Logo'
+            Width: =221
+            X: =946
+            Y: =507
+      - Lbl_TitleDescripcion:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =29
+            Size: =24
+            Text: ="Introductorio provisional"
+            Width: =447
+            X: =760
+            Y: =453
+      - Lbl_Descripcion:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =80
+            Size: =12
+            Text: ="Realizado con la finalidad de como se dirigen las pantallas ya sea como alumno y administrador"
+            Width: =447
+            X: =760
+            Y: =481
+      - Lbl_CodUsuario:
+          Control: Label@2.5.1
+          Properties:
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =18
+            Text: ="Código Usuario :"
+            Width: =166
+            X: =122
+            Y: =306
+      - Lbl_Title:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =50
+            Size: =28
+            Text: ="BIENVENIDO"
+            Width: =447
+            X: =158
+            Y: =119
+      - Btn_Login:
+          Control: Classic/Button@2.2.0
+          Properties:
+            Color: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(229, 10, 23, 1)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =RGBA(229, 10, 23, 0.5)
+            OnSelect: |-
+              =//Modal de carga
+              Set(
+                  varModalCarga,
+                  true
+              );
+              //Refrescar listas
+              Refresh(Var_upc_HistoricoSolicitudesAlumno);
+              //Código de usuario
+              Set(
+                  varCodigoUsuario,
+                  Upper(TrimEnds(Txt_CodUsuario.Text))
+              );
+              //Buscar elemento
+              Set(
+                  varRegistroSharepoint,
+                  LookUp(
+                      Var_upc_HistoricoSolicitudesAlumno,
+                      codigoUsuario = varCodigoUsuario
+                  )
+              );
+              //Patch extraer SQL
+              If(
+                  IsBlank(
+                      varRegistroSharepoint
+                  ),
+                  Patch(
+                      Var_upc_HistoricoSolicitudesAlumno,
+                      Defaults(Var_upc_HistoricoSolicitudesAlumno),
+                      {
+                          codigoUsuario: varCodigoUsuario,
+                          periodo: If(
+                              IsBlank(Cbx_Periodo.Selected.codigo),
+                              varTablaJSONConfiguraciones.varFiltroTodos,
+                              Cbx_Periodo.Selected.codigo
+                          ),
+                          flagConsulta: varTablaJSONConfiguraciones.varFlagSi
+                      }
+                  ),
+                  Patch(
+                      Var_upc_HistoricoSolicitudesAlumno,
+                      varRegistroSharepoint,
+                      {
+                          periodo: If(
+                              IsBlank(Cbx_Periodo.Selected.codigo),
+                              varTablaJSONConfiguraciones.varFiltroTodos,
+                              Cbx_Periodo.Selected.codigo
+                          ),
+                          flagConsulta: varTablaJSONConfiguraciones.varFlagSi
+                      }
+                  )
+              );
+              Set(
+                  varIniciarTimer,
+                  true
+              )
+            RadiusBottomLeft: =20
+            RadiusBottomRight: =20
+            RadiusTopLeft: =20
+            RadiusTopRight: =20
+            Size: =18
+            Text: ="INGRESO"
+            Width: =320
+            X: =221
+            Y: =538
+      - Lbl_Periodo:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Right
+            Font: =Font.'Open Sans Condensed'
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =18
+            Text: ="Periodo :"
+            Width: =166
+            X: =117
+            Y: =393
+      - Cbx_Periodo:
+          Control: ModernCombobox@1.1.0
+          Properties:
+            BorderColor: =RGBA(255, 0, 0, 1)
+            Color: =RGBA(0, 0, 0, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            InputTextPlaceholder: ="Todos"
+            ItemDisplayText: =ThisItem.codigo
+            Items: =colPeriodos
+            SelectMultiple: =false
+            Size: =16
+            X: =294
+            Y: =402
+      - Cmp_ModalCarga:
+          Control: CanvasComponent
+          ComponentName: ActDatosCargando
+          Properties:
+            Height: =768
+            Visible: =varModalCarga
+            Width: =1366
+      - Cmp_ModalError:
+          Control: CanvasComponent
+          ComponentName: ModalError
+          Properties:
+            BtnCerrar: |-
+              =Set(
+                  varModalErrorVisible,
+                  false
+              )
+            Height: =768
+            TextAlerta: =varModalErrorTexto
+            Visible: =varModalErrorVisible
+            Width: =1366
