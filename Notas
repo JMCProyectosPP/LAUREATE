@@ -9,15 +9,26 @@ ESTO ES PARA LOS ALUMNOS
 En PROD se debe entrar por URL a las listas, porque estan ocultos
 
 ESTO ES PARA LOS VISUALIZADORES/ADMINISTRATIVOS
-Buscar la solucion [Sistea Tramites visualizador]
+Buscar la solucion [Sistema Tramites visualizador] > este lo usando los administrativos
 
-*En la pantalla de [Sistema de Trámites] - Alumnos > La pantalla P_Bandeja ya esta actualizado el Patch para optimizar la consulta
+*En la pantalla de [Sistema de Trámites] - Alumnos (Ya lo aprobaron) > La pantalla P_Bandeja ya esta actualizado el Patch para optimizar la consulta
 *En los power app quedo pendiente algun tema de licencias 
 
-
-Alinear con el equipo de soporte, en caso actualicen la bandeja de Alumno, solicitar que me pasen los cambios para agregarlo 
+Alinear con el equipo de soporte (Samuel y Vivi), en caso actualicen la bandeja de Alumno, solicitar que me pasen los cambios para agregarlo 
 
 Estaban desactivados, los volvi a activar
 [Corrección de Evaluaciones] - Proceso Actualizar Nota UCLASS
 [Corrección de Evaluaciones] - [FP] - Individual
 [Corrección de Evaluaciones] - [FR] - Reintentos
+
+POWER AUTOMATE [HistoricoSolicitudesAprobadas] > [Extraer Datos SQL Alumnos]
+*Quieren cambiar el trigger y por eso quieren adquirir licencia process
+  El trigger deberia ser 'Cuando Power App llame a un flujo (V2)' y
+ (Deberia tomar los parametros codigoUsuario y periodo de la lista upc_HistoricoSolicitudesAprobadas)
+  Lo debo mandar en ConsultaSolicitud dentro de la 'Consulta de filtro'
+  Lo que hace el If dentro es que valida si el campo de 'periodo' dentro de la lista
+  es 'Todos' no agrega ningun filtro adicional, pero si es diferente le manda el periodo
+*En JSONSQL se descerealiza el JSON
+*Dentro de 'Existen resultados', si no existen resultados se actualiza el campo 'EstadoConsulta' con vacio.
+ De caso contrario actualiza el campo con Correcto
+*Copiar 'ConsultaACTD', 'ContadorACTD' y 'Tiene Elementos ACTD' en los demas.
