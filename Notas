@@ -32,20 +32,3 @@ POWER AUTOMATE [HistoricoSolicitudesAprobadas] > [Extraer Datos SQL Alumnos]
 *Dentro de 'Existen resultados', si no existen resultados se actualiza el campo 'EstadoConsulta' con vacio.
  De caso contrario actualiza el campo con Correcto
 *Copiar 'ConsultaACTD', 'ContadorACTD' y 'Tiene Elementos ACTD' en los demas.
-
-
-replace(replace(replace(replace(replace(replace(replace(outputs('Redactar_mensaje_1'), '[codigoalumno]', variables('codigoAlumno')), '[nombrealumno]', body('Seleccionar_Alumno')?[0]['nombreAlumno']), '[codigosol]', variables('idSolicitud')), '[semestre_periodo]', variables('periodo')), '[fechasol]', variables('FechaActual')), '[nombreasignatura]', variables('asignatura')), '[seccionasignatura]', variables('nrc'))
-
-
-
-replace(outputs('Redactar_mensaje_3'), '[nombrealumno]', body('Seleccionar_Alumno')?[0]['nombreAlumno'])
-
-replace(replace(outputs('Redactar_mensaje_3'), '[nombrealumno]', body('Seleccionar_Alumno')?[0]['nombreAlumno']), '[codigosol]', variables('idSolicitud'))
-
-replace(outputs('Redactar_mensaje_4'), '[nombrealumno]', body('Seleccionar_Alumno')?[0]['nombreAlumno'])
-
-replace(replace(outputs('Redactar_mensaje_4'), '[nombrealumno]', body('Seleccionar_Alumno')?[0]['nombreAlumno']), '[codigosol]', variables('idSolicitud'))
-
-correccion de Evaluaciones
-
-en el flujo se ajusto el token y el servicio
